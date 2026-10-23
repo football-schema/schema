@@ -107,10 +107,14 @@ export function result(m) {
 
 // ---- table derivations (schema/table.jsonld + premier-league rules) ----
 
-export function standing(club, matches, rules = { pointsForWin: 3, pointsForDraw: 1 }) {
-  const games = matches
+// venue 'home' or 'away' restricts to those games (the Home and Away tables);
+// last n keeps only the club's most recent n games (the Form table)
+export function standing(club, matches, rules = { pointsForWin: 3, pointsForDraw: 1 }, { venue, last } = {}) {
+  let games = matches
     .filter((m) => m.status === 'finished' && (m.homeTeam === club || m.awayTeam === club))
+    .filter((m) => !venue || (venue === 'home' ? m.homeTeam === club : m.awayTeam === club))
     .sort((a, b) => a.kickoff.localeCompare(b.kickoff));
+  if (last) games = games.slice(-last);
   const s = { club, played: games.length, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, form: [] };
   for (const m of games) {
     const { home, away } = score(m);

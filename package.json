@@ -1,14 +1,17 @@
 {
   "name": "football-schema",
   "version": "0.0.1",
-  "description": "A canonical, machine-readable model of association football — competitions, seasons, clubs, matches and league tables — in JSON-LD, with the Premier League as the reference competition.",
+  "description": "A canonical, machine-readable model of association football \u2014 competitions, seasons, clubs, matches and league tables \u2014 in JSON-LD, with the Premier League as the reference competition.",
   "type": "module",
   "license": "MIT",
   "scripts": {
     "diagram": "node tools/gen-class-diagram.js",
-    "site": "node tools/gen-site.js",
+    "site": "node tools/gen-site.js && node tools/gen-cards.js",
     "import": "node tools/import-openfootball.js && node tools/gen-site.js",
+    "history": "node tools/import-history.js && node tools/import-england.js && npm run site",
     "derive": "node tools/derive.js examples/*.jsonld",
-    "test": "node tools/check.js"
+    "test": "node tools/check.js",
+    "cards": "node tools/gen-cards.js",
+    "football-data": "node tools/fetch-football-data.js && npm run import"
   }
 }

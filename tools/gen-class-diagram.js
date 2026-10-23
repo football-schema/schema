@@ -79,6 +79,7 @@ function mermaid() {
 const COL = [20, 320, 620, 920, 1220];
 const POS = {
   'fb:Stadium':      { x: COL[0], y: 40 },
+  'fb:TableZone':    { x: COL[2], y: 40 },
   'fb:Competition':  { x: COL[1], y: 40 },
   'fb:Club':         { x: COL[0], y: 420 },
   'fb:Season':       { x: COL[1], y: 420 },
