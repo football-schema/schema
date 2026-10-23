@@ -109,6 +109,17 @@ Shields are drawn from each club's `colours` and `kitPattern`, not official cres
 without JavaScript; `assets/scores.js` adds the tabs and navigation, local kick-off times, a
 light/dark switch, and followed clubs (stored only in the viewer's browser).
 
+## Daily refresh
+
+[`tools/refresh.sh`](tools/refresh.sh) fetches football-data.org (when a token is set) and
+openfootball, keeping the last good copy if either fetch fails, then imports, rebuilds the site and
+share cards, runs the checks, and commits locally only if the data changed. A score that disagrees
+between sources stops it before anything is committed. It runs from cron each morning:
+
+```
+30 7 * * * /home/melvin/bots/tmp/epl/tools/refresh.sh >> /home/melvin/bots/tmp/epl/logs/refresh.log 2>&1
+```
+
 ## Tools
 
 ```
