@@ -76,6 +76,14 @@ dates are a day out (the 1999 Boxing Day round is dated 25 December). Scores are
 
 ## Site
 
+`/` redirects to the scores hub (`fixtures/`); the schema reference is at [`schema/`](schema/).
+Every time on the site is shown in one zone: the viewer's own by default, or UK time via the
+button in the top bar (remembered per browser). Scores are always written home side first. Every
+table can be sorted by clicking a column header ("#" restores the original order). On match days
+open pages poll `fixtures/live.json` (the state of the round in play, rebuilt by `refresh.sh
+--live`) every minute and update scores in place, reloading only when a match finishes.
+
+
 The presentation layer, generated as static HTML from `data/` by [`tools/gen-site.js`](tools/gen-site.js)
 (builders in `tools/site/`, hand-written CSS and JS in `assets/`):
 
