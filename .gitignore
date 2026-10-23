@@ -1,2 +1,3 @@
 tools/fonts/.cache/
 .env.local
+logs/
