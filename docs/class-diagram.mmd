@@ -28,6 +28,7 @@ classDiagram
     +gYear founded
     +string? nickname
     +hexColour[]? colours
+    +KitPattern? kitPattern
   }
   class Registration {
     +Player player
@@ -60,8 +61,14 @@ classDiagram
   class Referee {
     +bool fifaBadge
   }
+  class TableZone {
+    +int from
+    +int to
+    +ZoneKind kind
+  }
   class Match {
     +dateTime kickoff
+    +bool? timeConfirmed
     +int matchweek
     +MatchStatus status
     +int? attendance
@@ -127,6 +134,7 @@ classDiagram
     +position() derived
     +form() derived
   }
+  Competition "1" *-- "0..*" TableZone : zones
   Competition "1" *-- "1..*" Season : seasons
   Season --> "2..*" Club : clubs
   Season "1" *-- "0..*" Match : matches

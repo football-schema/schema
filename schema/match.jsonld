@@ -17,7 +17,8 @@
       "label": "Match",
       "comment": "One fixture between a home and an away club. The two lineups and the event log are owned by the match.",
       "fields": [
-        { "property": "fb:kickoff", "label": "kickoff", "valueType": "dateTime", "comment": "Scheduled kick-off, in UTC." },
+        { "property": "fb:kickoff", "label": "kickoff", "valueType": "dateTime", "comment": "Scheduled kick-off, in UTC (e.g. 2026-08-21T19:00:00Z)." },
+        { "property": "fb:timeConfirmed", "label": "timeConfirmed", "valueType": "bool", "optional": true, "comment": "false while the time is a placeholder: the date is right, but broadcast picks have not set the kick-off. Absent means confirmed." },
         { "property": "fb:matchweek", "label": "matchweek", "valueType": "int", "comment": "Round of the season, 1–38 in the Premier League." },
         { "property": "fb:status", "label": "status", "enumType": "fb:MatchStatus", "comment": "Where the match is in its lifecycle." },
         { "property": "fb:attendance", "label": "attendance", "valueType": "int", "optional": true, "comment": "Official attendance, once published." },

@@ -26,6 +26,7 @@
         { "property": "fb:relegationPlaces", "label": "relegationPlaces", "valueType": "int", "optional": true, "comment": "Clubs relegated at the end of each season." },
         { "property": "fb:pointsForWin", "label": "pointsForWin", "valueType": "int", "optional": true, "comment": "League points for a win (3 in English football since 1981)." },
         { "property": "fb:pointsForDraw", "label": "pointsForDraw", "valueType": "int", "optional": true, "comment": "League points for a draw." },
+        { "property": "fb:zones", "label": "zones", "partType": "fb:TableZone", "multiplicity": "0..*", "comment": "Bands of table positions with a consequence: European qualification, relegation." },
         { "property": "fb:seasons", "label": "seasons", "partType": "fb:Season", "multiplicity": "1..*", "comment": "Every edition of the competition, oldest first. Embedded, or linked by IRI to a season file." }
       ],
       "derived": [
@@ -68,6 +69,7 @@
         { "property": "fb:founded", "label": "founded", "valueType": "gYear", "comment": "Year of foundation." },
         { "property": "fb:nickname", "label": "nickname", "valueType": "string", "optional": true, "comment": "Traditional nickname, e.g. \"The Gunners\"." },
         { "property": "fb:colours", "label": "colours", "valueType": "hexColour[]", "optional": true, "comment": "Club colours as #rrggbb, most prominent first (normally the home shirt)." },
+        { "property": "fb:kitPattern", "label": "kitPattern", "enumType": "fb:KitPattern", "optional": true, "comment": "Traditional pattern of the home shirt, used with colours to draw the club's shield." },
         { "property": "fb:homeGround", "label": "homeGround", "refType": "fb:Stadium", "multiplicity": "1", "comment": "The stadium where the club plays its home matches." },
         { "property": "fb:squad", "label": "squad", "partType": "fb:Registration", "multiplicity": "0..*", "comment": "Player registrations, one per player per season." }
       ]
@@ -153,6 +155,48 @@
       "comment": "A match official on the Select Group list.",
       "fields": [
         { "property": "fb:fifaBadge", "label": "fifaBadge", "valueType": "bool", "comment": "Holds a FIFA international badge." }
+      ]
+    },
+
+    {
+      "@id": "fb:TableZone",
+      "@type": "EntityClass",
+      "module": "fb:core",
+      "label": "TableZone",
+      "comment": "A band of league positions with a consequence, e.g. 1st–4th: Champions League. Typical allocation only; cup winners and extra UEFA places can move it.",
+      "fields": [
+        { "property": "fb:from", "label": "from", "valueType": "int", "comment": "First position in the band." },
+        { "property": "fb:to", "label": "to", "valueType": "int", "comment": "Last position in the band." },
+        { "property": "fb:kind", "label": "kind", "enumType": "fb:ZoneKind", "comment": "What finishing in the band leads to." }
+      ]
+    },
+
+    {
+      "@id": "fb:ZoneKind",
+      "@type": "Enumeration",
+      "module": "fb:core",
+      "label": "ZoneKind",
+      "comment": "Consequence of finishing in a table zone.",
+      "members": [
+        { "name": "championsLeague", "comment": "UEFA Champions League league phase." },
+        { "name": "europaLeague", "comment": "UEFA Europa League." },
+        { "name": "conferenceLeague", "comment": "UEFA Conference League." },
+        { "name": "relegation", "comment": "Relegation to the division below." }
+      ]
+    },
+
+    {
+      "@id": "fb:KitPattern",
+      "@type": "Enumeration",
+      "module": "fb:core",
+      "label": "KitPattern",
+      "comment": "Traditional home-shirt pattern.",
+      "members": [
+        { "name": "plain", "comment": "One body colour." },
+        { "name": "stripes", "comment": "Vertical stripes in the first two colours." },
+        { "name": "hoops", "comment": "Horizontal hoops in the first two colours." },
+        { "name": "sleeves", "comment": "Body in the first colour, sleeves in the second." },
+        { "name": "halves", "comment": "Left and right halves in the first two colours." }
       ]
     },
 
