@@ -18,11 +18,17 @@
     "tools/validate.js",
     "examples/",
     "class-diagram.svg",
-    "docs/"
+    "docs/",
+    "LICENSE"
   ],
   "scripts": {
     "diagram": "node tools/gen-class-diagram.js",
     "derive": "node tools/derive.js examples/*.jsonld",
     "test": "node tools/check.js"
+  },
+  "homepage": "https://football-schema.github.io/schema/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/football-schema/schema.git"
   }
 }

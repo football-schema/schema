@@ -217,6 +217,7 @@ npm test          # schema closure, diagram freshness, examples, derivations
 ```
 
 Zero dependencies; Node 20+. `index.html` is the schema reference, rendered from `schema/*.jsonld`.
-The namespace `https://football-schema.github.io/schema/` is a placeholder until this is published.
+Terms are named in the `urn:football:` namespace (so `Match` is `urn:football:Match`); the context and
+this reference are published at <https://football-schema.github.io/schema/>.
 
 Built on it: **matchday**, a Premier League scores site (a separate project).

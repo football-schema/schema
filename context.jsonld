@@ -1,9 +1,9 @@
 {
   "@context": {
     "@version": 1.1,
-    "@vocab": "https://football-schema.github.io/schema/",
-    "fb": "https://football-schema.github.io/schema/",
-    "fbs": "https://football-schema.github.io/schema/meta#",
+    "@vocab": "urn:football:",
+    "fb": "urn:football:",
+    "fbs": "urn:football:meta:",
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
     "schema": "https://schema.org/",
