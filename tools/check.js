@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Self-checks, zero dependencies:
 //   1. the schema is closed: every type it names resolves
-//   2. class-diagram.svg and docs/class-diagram.mmd match the schema
+//   2. the diagram and the clubs/ site are freshly generated from schema and data
 //   3. every example and the linked data/ graph conform to the schema and rules
 //   4. derived values for the reference match are what history recorded
 //
@@ -32,11 +32,19 @@ for (const n of S.nodes) {
 console.log(`  ${S.classes.size} classes, ${S.enums.size} enumerations`);
 
 // 2 ---------------------------------------------------------------------
-console.log('diagram');
-const before = await Promise.all(['class-diagram.svg', 'docs/class-diagram.mmd'].map((f) => readFile(new URL(f, root), 'utf8')));
-execFileSync(process.execPath, [new URL('gen-class-diagram.js', import.meta.url).pathname], { stdio: 'ignore' });
-const after = await Promise.all(['class-diagram.svg', 'docs/class-diagram.mmd'].map((f) => readFile(new URL(f, root), 'utf8')));
-ok(before[0] === after[0] && before[1] === after[1], 'diagram was stale (now regenerated — commit it)');
+// generated files must match what their generator produces from the sources
+const generated = async (dir, ext) => (await readdir(new URL(dir, root), { recursive: true }))
+  .filter((f) => f.endsWith(ext)).map((f) => dir + f).sort();
+async function fresh(label, script, files) {
+  console.log(label);
+  const read = (fs) => Promise.all(fs.map((f) => readFile(new URL(f, root), 'utf8').catch(() => null)));
+  const before = await read(files);
+  execFileSync(process.execPath, [new URL(script, import.meta.url).pathname], { stdio: 'ignore' });
+  const after = await read(files);
+  ok(before.every((x, i) => x === after[i]), `${label} was stale (now regenerated — commit it)`);
+}
+await fresh('diagram', 'gen-class-diagram.js', ['class-diagram.svg', 'docs/class-diagram.mmd']);
+await fresh('site', 'gen-site.js', await generated('clubs/', '.html'));
 
 // 3 ---------------------------------------------------------------------
 const META = new Set(['@id', '@type', 'comment', 'label']);
@@ -63,6 +71,7 @@ function conform(node, g, where) {
       ok(S.isA(node_['@type'], S.byId.get(f.partType).label), `${where}.${k}[${i}]: expected ${f.partType}`);
     });
     if (f.valueType === 'int') ok(Number.isInteger(v), `${where}.${k}: expected int`);
+    if (f.valueType === 'hexColour[]') ok([].concat(v).every((c) => /^#[0-9a-f]{6}$/i.test(c)), `${where}.${k}: expected #rrggbb colours`);
   }
 }
 

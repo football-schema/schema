@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "diagram": "node tools/gen-class-diagram.js",
+    "site": "node tools/gen-site.js",
     "derive": "node tools/derive.js examples/*.jsonld",
     "test": "node tools/check.js"
   }

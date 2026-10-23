@@ -6,28 +6,28 @@
   <text x="445" y="361" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1</text>
   <text x="443" y="414" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1..*</text>
   <text x="427" y="406" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">seasons</text>
-  <path d="M320,510 L250,510" fill="none" stroke="#8c959f" stroke-width="1.4"/>
-  <path d="M259,505 L250,510 L259,515" fill="none" stroke="#8c959f" stroke-width="1.4"/>
-  <text x="285" y="503" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="middle">clubs</text>
-  <text x="254" y="526" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">2..*</text>
-  <path d="M435,584 L435,638 L435,638 L435,710" fill="none" stroke="#8c959f" stroke-width="1.4"/>
-  <path d="M435,566 l7,9 l-7,9 l-7,-9 z" fill="#1f2328"/>
-  <text x="445" y="580" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1</text>
+  <path d="M320,522 L250,522" fill="none" stroke="#8c959f" stroke-width="1.4"/>
+  <path d="M259,517 L250,522 L259,527" fill="none" stroke="#8c959f" stroke-width="1.4"/>
+  <text x="285" y="515" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="middle">clubs</text>
+  <text x="254" y="538" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">2..*</text>
+  <path d="M435,607 L435,650 L435,650 L435,710" fill="none" stroke="#8c959f" stroke-width="1.4"/>
+  <path d="M435,589 l7,9 l-7,9 l-7,-9 z" fill="#1f2328"/>
+  <text x="445" y="603" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1</text>
   <text x="443" y="704" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">0..*</text>
-  <text x="427" y="678" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">matches</text>
-  <path d="M550,510 L620,510" fill="none" stroke="#8250df" stroke-width="1.4" stroke-dasharray="6 4"/>
-  <path d="M611,505 L620,510 L611,515" fill="none" stroke="#8250df" stroke-width="1.4"/>
-  <text x="585" y="503" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="middle">/table</text>
-  <text x="616" y="526" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">0..*</text>
+  <text x="427" y="684" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">matches</text>
+  <path d="M550,522 L620,522" fill="none" stroke="#8250df" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <path d="M611,517 L620,522 L611,527" fill="none" stroke="#8250df" stroke-width="1.4"/>
+  <text x="585" y="515" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="middle">/table</text>
+  <text x="616" y="538" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">0..*</text>
   <path d="M135,420 L135,315 L135,315 L135,209" fill="none" stroke="#8c959f" stroke-width="1.4"/>
   <path d="M130,218 L135,209 L140,218" fill="none" stroke="#8c959f" stroke-width="1.4"/>
   <text x="143" y="219" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1</text>
   <text x="127" y="266" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">homeGround</text>
-  <path d="M135,584 L135,638 L135,638 L135,710" fill="none" stroke="#8c959f" stroke-width="1.4"/>
-  <path d="M135,566 l7,9 l-7,9 l-7,-9 z" fill="#1f2328"/>
-  <text x="145" y="580" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1</text>
+  <path d="M135,630 L135,661 L135,661 L135,710" fill="none" stroke="#8c959f" stroke-width="1.4"/>
+  <path d="M135,612 l7,9 l-7,9 l-7,-9 z" fill="#1f2328"/>
+  <text x="145" y="626" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1</text>
   <text x="143" y="704" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">0..*</text>
-  <text x="127" y="678" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">squad</text>
+  <text x="127" y="690" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">squad</text>
   <path d="M735,710 L735,657 L1035,657 L1035,603" fill="none" stroke="#8c959f" stroke-width="1.4"/>
   <path d="M1035,589 l8,14 l-16,0 z" fill="#ffffff" stroke="#8c959f" stroke-width="1.4"/>
   <path d="M1035,710 L1035,657 L1035,657 L1035,603" fill="none" stroke="#8c959f" stroke-width="1.4"/>
@@ -68,22 +68,25 @@
     <text x="334" y="329" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" font-style="italic" fill="#8250df">/currentSeason</text>
   </g>
   <g>
-    <rect x="320" y="420" width="230" height="146" rx="10" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+    <rect x="320" y="420" width="230" height="169" rx="10" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
     <line x1="320" y1="454" x2="550" y2="454" stroke="#d0d7de"/>
     <text x="435" y="443" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#1f2328" text-anchor="middle">Season</text>
     <text x="334" y="479" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">label<tspan fill="#c4004b">: string</tspan></text>
     <text x="334" y="502" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">startDate<tspan fill="#c4004b">: date</tspan></text>
     <text x="334" y="525" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">endDate<tspan fill="#c4004b">: date</tspan></text>
-    <text x="334" y="548" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" font-style="italic" fill="#8250df">/champion</text>
+    <text x="334" y="548" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">promoted<tspan fill="#0969da">: Club[]?</tspan></text>
+    <text x="334" y="571" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" font-style="italic" fill="#8250df">/champion</text>
   </g>
   <g>
-    <rect x="20" y="420" width="230" height="146" rx="10" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+    <rect x="20" y="420" width="230" height="192" rx="10" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
     <line x1="20" y1="454" x2="250" y2="454" stroke="#d0d7de"/>
     <text x="135" y="443" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#1f2328" text-anchor="middle">Club</text>
     <text x="34" y="479" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">name<tspan fill="#c4004b">: string</tspan></text>
     <text x="34" y="502" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">shortName<tspan fill="#c4004b">: string</tspan></text>
     <text x="34" y="525" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">tla<tspan fill="#c4004b">: code</tspan></text>
     <text x="34" y="548" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">founded<tspan fill="#c4004b">: gYear</tspan></text>
+    <text x="34" y="571" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">nickname<tspan fill="#c4004b">: string?</tspan></text>
+    <text x="34" y="594" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">colours<tspan fill="#c4004b">: hexColour[]?</tspan></text>
   </g>
   <g>
     <rect x="20" y="710" width="230" height="146" rx="10" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>

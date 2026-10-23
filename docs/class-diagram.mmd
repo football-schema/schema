@@ -17,6 +17,7 @@ classDiagram
     +string label
     +date startDate
     +date endDate
+    +Club[]? promoted
     +champion() derived
   }
   class Club {
@@ -24,6 +25,8 @@ classDiagram
     +string shortName
     +code tla
     +gYear founded
+    +string? nickname
+    +hexColour[]? colours
   }
   class Registration {
     +Player player

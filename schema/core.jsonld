@@ -45,6 +45,7 @@
         { "property": "fb:startDate", "label": "startDate", "valueType": "date", "comment": "Date of the first scheduled match." },
         { "property": "fb:endDate", "label": "endDate", "valueType": "date", "comment": "Date of the last scheduled match." },
         { "property": "fb:clubs", "label": "clubs", "refType": "fb:Club", "multiplicity": "2..*", "comment": "Clubs entered in this season (20 in the Premier League)." },
+        { "property": "fb:promoted", "label": "promoted", "refType": "fb:Club", "multiplicity": "0..*", "comment": "Clubs that joined from the division below for this season." },
         { "property": "fb:matches", "label": "matches", "partType": "fb:Match", "multiplicity": "0..*", "comment": "All fixtures of the season, played or not." }
       ],
       "derived": [
@@ -64,6 +65,8 @@
         { "property": "fb:shortName", "label": "shortName", "valueType": "string", "comment": "Common short name, e.g. \"Man City\"." },
         { "property": "fb:tla", "label": "tla", "valueType": "code", "comment": "Three-letter abbreviation used in scorelines and graphics, e.g. MCI." },
         { "property": "fb:founded", "label": "founded", "valueType": "gYear", "comment": "Year of foundation." },
+        { "property": "fb:nickname", "label": "nickname", "valueType": "string", "optional": true, "comment": "Traditional nickname, e.g. \"The Gunners\"." },
+        { "property": "fb:colours", "label": "colours", "valueType": "hexColour[]", "optional": true, "comment": "Club colours as #rrggbb, most prominent first (normally the home shirt)." },
         { "property": "fb:homeGround", "label": "homeGround", "refType": "fb:Stadium", "multiplicity": "1", "comment": "The stadium where the club plays its home matches." },
         { "property": "fb:squad", "label": "squad", "partType": "fb:Registration", "multiplicity": "0..*", "comment": "Player registrations, one per player per season." }
       ]

@@ -50,6 +50,7 @@
     "matches": {"@id": "fb:matches", "@type": "@id"},
     "player": {"@id": "fb:player", "@type": "@id"},
     "playerOff": {"@id": "fb:playerOff", "@type": "@id"},
+    "promoted": {"@id": "fb:promoted", "@type": "@id"},
     "playerOn": {"@id": "fb:playerOn", "@type": "@id"},
     "referee": {"@id": "fb:referee", "@type": "@id"},
     "scorer": {"@id": "fb:scorer", "@type": "@id"},

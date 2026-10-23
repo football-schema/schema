@@ -32,8 +32,15 @@ data/
   competitions/premier-league.jsonld   #this: the Premier League → links its seasons
   seasons/2026-27.jsonld               #this: the 2026/27 season → links its 20 clubs
   clubs/ARS.jsonld …                   #this: the club, #stadium: its home ground
-  clubs/index.html                     clubs page, rendered from the files above
 ```
+
+## Site
+
+[`clubs/`](clubs/) is the presentation layer: a league page and one page per club
+(`clubs/arsenal/`, `clubs/manchester-city/`, …) in the club's colours, generated as static
+HTML from `data/` by [`tools/gen-site.js`](tools/gen-site.js). Shields are drawn from club
+colours, not official crests. The schema pages stay plain; they are the reference, this is
+what people read.
 
 A club is described once and outlives any one season. `npm test` loads `data/` as one linked
 graph and checks every link resolves, every node conforms to the schema, and each season has
@@ -43,8 +50,9 @@ the competition's `clubsPerSeason` (20) clubs with unique codes.
 
 ```
 npm run diagram   # regenerate class-diagram.svg + docs/class-diagram.mmd
+npm run site      # regenerate clubs/ from data/
 npm run derive    # scores, timelines and the table for examples/
-npm test          # schema closure, diagram freshness, example conformance, derivations
+npm test          # schema closure, diagram + site freshness, data conformance, derivations
 ```
 
 Zero dependencies; Node 20+. The site is `index.html`, rendered client-side from `schema/*.jsonld`.
