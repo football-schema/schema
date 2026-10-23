@@ -1,6 +1,138 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Football Schema: Premier League scores</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="refresh" content="0; url=fixtures/">
-<link rel="canonical" href="fixtures/"></head>
-<body><p><a href="fixtures/">Premier League scores, fixtures and table</a> · <a href="schema/">the Football Schema</a></p></body></html>
+<title>Football Schema — a canonical model of the Premier League</title>
+<meta name="description" content="A canonical, machine-readable model of association football in JSON-LD — competitions, seasons, clubs, matches and league tables — with the Premier League as the reference competition.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Football Schema — a canonical model of the Premier League">
+<meta property="og:description" content="Competitions, seasons, clubs, matches and league tables in JSON-LD. Record the events; derive the score and the table.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Football <span>Schema</span> <span class="pill" id="version">v0.0.1</span></h1>
+    <p class="tag">A canonical, machine-readable model of association football in JSON-LD —
+       competitions, seasons, clubs, matches and league tables, with the Premier League as the
+       reference competition. Record what happened on the pitch; derive the score, the result and the table.</p>
+    <nav>
+      <a href="#core">core</a>
+      <a href="#match">match</a>
+      <a href="#table">table</a>
+      <a href="#premier-league">premier-league</a>
+                  <a href="examples/2012-05-13-mci-qpr.jsonld">example: MCI 3–2 QPR</a>
+      <a href="context.jsonld">context.jsonld</a>
+      <a href="docs/class-diagram.mmd">mermaid</a>
+    </nav>
+  </header>
+
+  <section style="margin:1.6rem 0">
+    <h2 style="font-size:1.1rem;margin:0 0 .2rem">Data model</h2>
+    <p style="color:var(--muted);margin:0 0 .8rem;font-size:.92rem">The core, match and table modules as a UML class diagram —
+      <a href="tools/gen-class-diagram.js">generated</a> from the schema, so it never drifts.
+      Filled diamonds are composition, hollow triangles generalization, open arrows association;
+      <code>/name</code> fields are derived (computed, not stored). Italic, dashed boxes are abstract.</p>
+    <a class="diagram" href="class-diagram.svg"><img src="class-diagram.svg" alt="UML class diagram: Competition composed of Seasons; Season composed of Matches and associated with Clubs, deriving a table of Standings; Match composed of two Lineups and a list of MatchEvents; Lineup composed of Appearances; Goal, Card and Substitution specialise MatchEvent; Player, Manager and Referee specialise Person; Club composed of Registrations and associated with its home Stadium."></a>
+  </section>
+
+  <main id="classes"><p style="color:var(--muted)">Loading schema…</p></main>
+
+  <footer>
+    Matches store only <em>events</em>; the score, result, minutes played and every number in the table are
+    <em>derived</em> from them, so a scoreline can never disagree with its goals.
+    <a href="tools/model.js">tools/model.js</a> implements the derivations; <code>npm test</code> checks the
+    schema, the diagram and the examples. Independent community project; not affiliated with the Premier League.
+  </footer>
+</div>
+<script type="module">
+  const MODULES = ['core', 'match', 'table', 'premier-league'];
+  const short = (id) => String(id).replace(/^fb:/, '');
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const link = (id, cls) => `<a class="${cls}" href="#${short(id)}">${short(id)}</a>`;
+  const main = document.getElementById('classes');
+  main.innerHTML = '';
+
+  const typeOf = (f) =>
+    f.partType ? `◆ ${link(f.partType, 't-ref')}<span class="t-value">[${f.multiplicity}]</span>`
+    : f.refType ? `→ ${link(f.refType, 't-ref')}${f.multiplicity && f.multiplicity !== '1' ? `<span class="t-value">[${f.multiplicity}]</span>` : ''}`
+    : f.enumType ? link(f.enumType, 't-enum')
+    : esc(f.valueType) + (f.optional ? '?' : '');
+
+  const fieldRows = (fields) => fields.map((f) => `
+    <tr><td class="name">${f.label}</td><td class="type">${typeOf(f)}</td><td class="desc">${esc(f.comment)}</td></tr>`).join('');
+  const derivedRows = (fields) => fields.map((f) => `
+    <tr><td class="name">/${f.label}</td><td class="desc"><code>${esc(f.derivation)}</code><br>${esc(f.comment)}</td></tr>`).join('');
+
+  try {
+    const pkg = await (await fetch('package.json')).json();
+    document.getElementById('version').textContent = 'v' + pkg.version;
+  } catch { /* keep the static version */ }
+
+  for (const name of MODULES) {
+    const schema = await (await fetch(`schema/${name}.jsonld`)).json();
+    const nodes = schema['@graph'];
+    const module_ = nodes.find((n) => n['@type'] === 'Module');
+
+    const heading = document.createElement('h2');
+    heading.className = 'module-h';
+    heading.id = name;
+    heading.innerHTML = `module: <a href="schema/${name}.jsonld">${name}</a> · layer: ${module_.layer}`;
+    main.appendChild(heading);
+    const blurb = document.createElement('p');
+    blurb.className = 'module-c';
+    blurb.textContent = module_.comment;
+    main.appendChild(blurb);
+
+    for (const node of nodes.filter((n) => n !== module_)) {
+      const card = document.createElement('section');
+      card.className = 'card';
+      card.id = node.label;
+      const type = node['@type'];
+
+      if (type === 'EntityClass' || type === 'AbstractClass') {
+        const abstract = type === 'AbstractClass';
+        if (abstract) card.classList.add('abstract');
+        card.innerHTML = `
+          <h2 class="${abstract ? 'abstract' : ''}">${node.label}</h2>
+          <div class="meta">${abstract ? 'abstract class' : 'class'}${node.subClassOf ? ` · extends ${link(node.subClassOf, '')}` : ''}</div>
+          <p class="comment">${esc(node.comment)}</p>
+          <div class="scroll"><table><tr><th>field</th><th>type</th><th>description</th></tr>${fieldRows(node.fields ?? [])}</table></div>
+          ${node.derived ? `<div class="derived-label">derived (computed, never stored)</div>
+          <div class="scroll"><table class="derived"><tr><th>field</th><th>derivation</th></tr>${derivedRows(node.derived)}</table></div>` : ''}`;
+      } else if (type === 'Enumeration') {
+        card.innerHTML = `
+          <h2>${node.label}</h2>
+          <div class="meta">enumeration · ${node.members.length} members</div>
+          <p class="comment">${esc(node.comment)}</p>
+          <div class="scroll"><table><tr><th>member</th><th>description</th></tr>
+          ${node.members.map((m) => `<tr><td class="name t-enum">${m.name}</td><td class="desc">${esc(m.comment)}</td></tr>`).join('')}
+          </table></div>`;
+      } else if (type === 'RuleSet') {
+        const codes = node.rules.some((r) => r.errorCode);
+        card.innerHTML = `
+          <h2>${node.label}</h2>
+          <div class="meta">ruleset · phase: <b>${node.phase}</b> · ${node.rules.length} ordered rules</div>
+          <p class="comment">${esc(node.comment)}</p>
+          <div class="scroll"><table><tr><th>#</th><th>rule</th>${codes ? '<th>error code</th>' : ''}<th>check</th></tr>
+          ${node.rules.map((r, i) => `
+            <tr><td class="name">${i + 1}</td><td class="name">${r.label}</td>
+                ${codes ? `<td class="type">${r.errorCode ?? ''}</td>` : ''}
+                <td class="desc"><code>${esc(r.check)}</code><br>${esc(r.comment)}</td></tr>`).join('')}
+          </table></div>`;
+      } else {
+        const props = Object.entries(node).filter(([k]) => !k.startsWith('@') && !['label', 'comment', 'module', '_module'].includes(k));
+        card.innerHTML = `
+          <h2>${node.label}</h2>
+          <div class="meta">instance of ${link(type, '')}</div>
+          <p class="comment">${esc(node.comment)}</p>
+          <div class="scroll"><table>${props.map(([k, v]) => `<tr><td class="name">${k}</td><td class="desc" style="font-family:var(--mono);overflow-wrap:anywhere">${esc(v)}</td></tr>`).join('')}</table></div>`;
+      }
+      main.appendChild(card);
+    }
+  }
+  if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+</script>
+</body>
+</html>
