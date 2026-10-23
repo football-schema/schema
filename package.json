@@ -24,7 +24,8 @@
   "scripts": {
     "diagram": "node tools/gen-class-diagram.js",
     "derive": "node tools/derive.js examples/*.jsonld",
-    "test": "node tools/check.js"
+    "test": "node tools/check.js",
+    "og": "rsvg-convert -w 1200 -h 630 docs/og.svg -o og.png"
   },
   "homepage": "https://football-schema.github.io/schema/",
   "repository": {

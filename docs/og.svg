@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <!-- share image for index.html; npm run og renders it to og.png -->
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <rect width="1200" height="14" fill="#37003c"/>
+  <rect y="14" width="1200" height="4" fill="#c4004b"/>
+
+  <g font-family="Liberation Sans, DejaVu Sans, sans-serif">
+    <text x="80" y="150" font-size="84" font-weight="700" fill="#1f2328">Football <tspan fill="#37003c">Schema</tspan></text>
+    <text x="80" y="212" font-size="32" fill="#57606a">A JSON-LD vocabulary for competitions, seasons,</text>
+    <text x="80" y="254" font-size="32" fill="#57606a">clubs, matches and league tables</text>
+  </g>
+
+  <rect x="80" y="300" width="1040" height="230" rx="16" fill="#f6f8fa" stroke="#d0d7de" stroke-width="2"/>
+  <g font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="27" xml:space="preserve">
+    <text x="116" y="352" fill="#57606a">{ "@type": <tspan fill="#c4004b">"Match"</tspan>,  <tspan fill="#8b949e">// urn:football:Match</tspan></text>
+    <text x="116" y="396" fill="#57606a">  "homeTeam": <tspan fill="#0969da">"clubs/MCI#this"</tspan>, "awayTeam": <tspan fill="#0969da">"clubs/QPR#this"</tspan>,</text>
+    <text x="116" y="440" fill="#57606a">  "events": [ <tspan fill="#1a7f37">Goal</tspan> 39′, <tspan fill="#1a7f37">Goal</tspan> 48′, … <tspan fill="#1a7f37">Goal</tspan> 90+4′ ] }</text>
+    <text x="116" y="494" fill="#8250df">→ derived: homeScore 3, awayScore 2, result homeWin</text>
+  </g>
+
+  <text x="80" y="590" font-family="DejaVu Sans Mono, Liberation Mono, monospace" font-size="24" fill="#57606a">football-schema.github.io/schema</text>
+  <text x="1120" y="590" text-anchor="end" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="24" fill="#57606a">Record the events. Derive the score and the table.</text>
+</svg>
