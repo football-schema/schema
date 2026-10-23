@@ -1,0 +1,9 @@
+{
+  "@type": "Blocktrail",
+  "version": "0.0.3",
+  "profile": "gitmark",
+  "pubkeyBase": "020f1f8ea36f608e50aec0876665518cb8927c34a48226542812bc0c54c3158f08",
+  "chain": "txbt4",
+  "states": [],
+  "txo": []
+}
