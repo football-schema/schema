@@ -29,7 +29,8 @@
         { "property": "fb:lineups", "label": "lineups", "partType": "fb:Lineup", "multiplicity": "0..2", "comment": "Team sheets: home first, then away. Absent until published." },
         { "property": "fb:events", "label": "events", "partType": "fb:MatchEvent", "multiplicity": "0..*", "comment": "Everything that happened, in chronological order." },
         { "property": "fb:fullTime", "label": "fullTime", "partType": "fb:Score", "multiplicity": "0..1", "comment": "Reported full-time score, for sources without an event log." },
-        { "property": "fb:halfTime", "label": "halfTime", "partType": "fb:Score", "multiplicity": "0..1", "comment": "Reported half-time score, for sources without an event log." }
+        { "property": "fb:halfTime", "label": "halfTime", "partType": "fb:Score", "multiplicity": "0..1", "comment": "Reported half-time score, for sources without an event log." },
+        { "property": "fb:currentScore", "label": "currentScore", "partType": "fb:Score", "multiplicity": "0..1", "comment": "The score so far while the match is live or at half time, from a possibly delayed feed. Never counts in the table; replaced by fullTime when the match finishes." }
       ],
       "derived": [
         { "property": "fb:homeScore", "label": "homeScore", "derivation": "events.some(e => e is Goal) ? events.filter(e => e is Goal && e.creditedTo == homeTeam).length : fullTime?.home", "comment": "Goals credited to the home side (own goals count for the opponent); the reported score when there is no event log." },

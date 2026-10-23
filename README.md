@@ -118,7 +118,14 @@ between sources stops it before anything is committed. It runs from cron each mo
 
 ```
 30 7 * * * /home/melvin/bots/tmp/epl/tools/refresh.sh >> /home/melvin/bots/tmp/epl/logs/refresh.log 2>&1
+*/5 * * * * /home/melvin/bots/tmp/epl/tools/refresh.sh --live >> /home/melvin/bots/tmp/epl/logs/live.log 2>&1
 ```
+
+**Match days.** `--live` does nothing unless a match is between 10 minutes before kick-off and
+150 minutes after it; then it fetches football-data.org, re-imports and rebuilds the pages (no
+cards, no commit). Matches in play get `status: live` or `halfTime` and a `currentScore`, which
+never counts in the table. The hub shows a Today section, rows show LIVE/HT, and open pages reload
+every 3 minutes while a match is on. The free tier's scores are delayed, and the pages say so.
 
 ## Tools
 
