@@ -1,0 +1,38 @@
+{
+  "@context": "../context.jsonld",
+  "@graph": [
+    { "@id": "#etihad", "@type": "Stadium", "name": "Etihad Stadium", "city": "Manchester", "latitude": 53.4831, "longitude": -2.2004 },
+    { "@id": "#loftus-road", "@type": "Stadium", "name": "Loftus Road", "city": "London" },
+
+    { "@id": "#MCI", "@type": "Club", "name": "Manchester City Football Club", "shortName": "Man City", "tla": "MCI", "founded": "1880", "homeGround": "#etihad" },
+    { "@id": "#QPR", "@type": "Club", "name": "Queens Park Rangers Football Club", "shortName": "QPR", "tla": "QPR", "founded": "1882", "homeGround": "#loftus-road" },
+
+    { "@id": "#zabaleta", "@type": "Player", "name": "Pablo Zabaleta", "nationality": "AR", "position": "DF" },
+    { "@id": "#silva", "@type": "Player", "name": "David Silva", "nationality": "ES", "position": "MF" },
+    { "@id": "#dzeko", "@type": "Player", "name": "Edin Džeko", "nationality": "BA", "position": "FW" },
+    { "@id": "#balotelli", "@type": "Player", "name": "Mario Balotelli", "nationality": "IT", "position": "FW" },
+    { "@id": "#aguero", "@type": "Player", "name": "Sergio Agüero", "nationality": "AR", "position": "FW" },
+    { "@id": "#cisse", "@type": "Player", "name": "Djibril Cissé", "nationality": "FR", "position": "FW" },
+    { "@id": "#barton", "@type": "Player", "name": "Joey Barton", "nationality": "GB-ENG", "position": "MF" },
+    { "@id": "#mackie", "@type": "Player", "name": "Jamie Mackie", "position": "FW" },
+
+    {
+      "@id": "#match", "@type": "Match",
+      "comment": "Manchester City 3–2 Queens Park Rangers, Premier League 2011/12, matchweek 38. City were 1–2 down at 90' and won the title on goal difference with Agüero's goal at 90+4'. Lineups are omitted; only the goals and the dismissal are recorded, which is all the score needs.",
+      "kickoff": "2012-05-13T14:00:00Z",
+      "matchweek": 38,
+      "status": "finished",
+      "homeTeam": "#MCI",
+      "awayTeam": "#QPR",
+      "venue": "#etihad",
+      "events": [
+        { "@type": "Goal", "minute": 39, "period": "firstHalf", "club": "#MCI", "scorer": "#zabaleta", "kind": "openPlay" },
+        { "@type": "Goal", "minute": 48, "period": "secondHalf", "club": "#QPR", "scorer": "#cisse", "kind": "openPlay" },
+        { "@type": "Card", "minute": 55, "period": "secondHalf", "club": "#QPR", "player": "#barton", "colour": "red" },
+        { "@type": "Goal", "minute": 66, "period": "secondHalf", "club": "#QPR", "scorer": "#mackie", "kind": "header" },
+        { "@type": "Goal", "minute": 90, "addedTime": 2, "period": "secondHalf", "club": "#MCI", "scorer": "#dzeko", "assist": "#silva", "kind": "header" },
+        { "@type": "Goal", "minute": 90, "addedTime": 4, "period": "secondHalf", "club": "#MCI", "scorer": "#aguero", "assist": "#balotelli", "kind": "openPlay" }
+      ]
+    }
+  ]
+}

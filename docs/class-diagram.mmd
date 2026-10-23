@@ -1,0 +1,136 @@
+classDiagram
+  direction TB
+  class Competition {
+    +string name
+    +code country
+    +CompetitionFormat format
+    +int? tier
+    +gYear founded
+    +int? clubsPerSeason
+    +int? relegationPlaces
+    +int? pointsForWin
+    +int? pointsForDraw
+    +matchesPerClub() derived
+    +currentSeason() derived
+  }
+  class Season {
+    +string label
+    +date startDate
+    +date endDate
+    +champion() derived
+  }
+  class Club {
+    +string name
+    +string shortName
+    +code tla
+    +gYear founded
+  }
+  class Registration {
+    +Player player
+    +Season season
+    +int shirtNumber
+    +bool homegrown
+  }
+  class Stadium {
+    +string name
+    +string city
+    +int? capacity
+    +decimal? latitude
+    +decimal? longitude
+  }
+  class Person {
+    <<abstract>>
+    +string name
+    +string? knownAs
+    +date dateOfBirth
+    +code nationality
+    +age() derived
+  }
+  class Player {
+    +Position position
+    +Foot preferredFoot
+  }
+  class Manager {
+    +Club? club
+  }
+  class Referee {
+    +bool fifaBadge
+  }
+  class Match {
+    +dateTime kickoff
+    +int matchweek
+    +MatchStatus status
+    +int? attendance
+    +Club homeTeam
+    +Club awayTeam
+    +Stadium venue
+    +Referee? referee
+    +homeScore() derived
+    +awayScore() derived
+    +result() derived
+    +halfTimeScore() derived
+  }
+  class Lineup {
+    +Club club
+    +string formation
+    +Manager manager
+  }
+  class Appearance {
+    +Player player
+    +int shirtNumber
+    +bool starter
+    +bool captain
+    +minutesPlayed() derived
+  }
+  class MatchEvent {
+    <<abstract>>
+    +int minute
+    +int? addedTime
+    +Period period
+    +Club club
+    +clock() derived
+  }
+  class Goal {
+    +Player scorer
+    +Player? assist
+    +GoalKind kind
+    +creditedTo() derived
+  }
+  class Card {
+    +Person player
+    +CardColour colour
+  }
+  class Substitution {
+    +Player playerOff
+    +Player playerOn
+    +bool concussion
+  }
+  class Standing {
+    +Club club
+    +Season season
+    +played() derived
+    +won() derived
+    +drawn() derived
+    +lost() derived
+    +goalsFor() derived
+    +goalsAgainst() derived
+    +goalDifference() derived
+    +points() derived
+    +position() derived
+    +form() derived
+  }
+  Competition "1" *-- "1..*" Season : seasons
+  Season --> "2..*" Club : clubs
+  Season "1" *-- "0..*" Match : matches
+  Season ..> "0..*" Standing : /table
+  Club --> "1" Stadium : homeGround
+  Club "1" *-- "0..*" Registration : squad
+  Person <|-- Player
+  Person <|-- Manager
+  Person <|-- Referee
+  Match "1" *-- "0..2" Lineup : lineups
+  Match "1" *-- "0..*" MatchEvent : events
+  Lineup "1" *-- "11..20" Appearance : appearances
+  MatchEvent <|-- Goal
+  MatchEvent <|-- Card
+  MatchEvent <|-- Substitution

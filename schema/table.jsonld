@@ -1,0 +1,37 @@
+{
+  "@context": "../context.jsonld",
+  "@graph": [
+    {
+      "@id": "fb:table",
+      "@type": "Module",
+      "label": "table",
+      "version": "0.0.1",
+      "comment": "The league table as a pure projection of finished matches. Nothing here is stored: a Standing is a club in a season, and every number in it is computed from that season's results.",
+      "layer": "projection"
+    },
+
+    {
+      "@id": "fb:Standing",
+      "@type": "EntityClass",
+      "module": "fb:table",
+      "label": "Standing",
+      "comment": "One row of a league table. Identified by club and season; all statistics are derived from finished matches involving the club.",
+      "fields": [
+        { "property": "fb:club", "label": "club", "refType": "fb:Club", "multiplicity": "1", "comment": "The club this row describes." },
+        { "property": "fb:season", "label": "season", "refType": "fb:Season", "multiplicity": "1", "comment": "The season this row belongs to." }
+      ],
+      "derived": [
+        { "property": "fb:played", "label": "played", "derivation": "games.length  where games = season.matches.filter(m => m.status == 'finished' && club in [m.homeTeam, m.awayTeam])", "comment": "Matches played." },
+        { "property": "fb:won", "label": "won", "derivation": "games.filter(m => goalsFor(m) > goalsAgainst(m)).length", "comment": "Matches won." },
+        { "property": "fb:drawn", "label": "drawn", "derivation": "games.filter(m => m.result == 'draw').length", "comment": "Matches drawn." },
+        { "property": "fb:lost", "label": "lost", "derivation": "played - won - drawn", "comment": "Matches lost." },
+        { "property": "fb:goalsFor", "label": "goalsFor", "derivation": "sum(games.map(goalsFor))", "comment": "Goals scored." },
+        { "property": "fb:goalsAgainst", "label": "goalsAgainst", "derivation": "sum(games.map(goalsAgainst))", "comment": "Goals conceded." },
+        { "property": "fb:goalDifference", "label": "goalDifference", "derivation": "goalsFor - goalsAgainst", "comment": "Goal difference." },
+        { "property": "fb:points", "label": "points", "derivation": "won * rules.pointsForWin + drawn * rules.pointsForDraw - deductions", "comment": "League points, after any deductions imposed by the competition." },
+        { "property": "fb:position", "label": "position", "derivation": "1 + season.table.indexOf(this)", "comment": "Place in the table after applying the tie-break rules." },
+        { "property": "fb:form", "label": "form", "derivation": "games.slice(-5).map(m => 'W' | 'D' | 'L')", "comment": "Results of the last five matches, oldest first." }
+      ]
+    }
+  ]
+}

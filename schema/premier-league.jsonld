@@ -1,0 +1,139 @@
+{
+  "@context": "../context.jsonld",
+  "@graph": [
+    {
+      "@id": "fb:premier-league",
+      "@type": "Module",
+      "label": "premier-league",
+      "version": "0.0.1",
+      "comment": "The rules that give Premier League tables and team sheets meaning. The competition itself, its seasons and its clubs are data, in data/competitions/premier-league.jsonld; other leagues reuse core, match and table and supply their own rules module like this one.",
+      "layer": "competition"
+    },
+    {
+      "@id": "fb:ClassificationRules",
+      "@type": "RuleSet",
+      "module": "fb:premier-league",
+      "label": "ClassificationRules",
+      "phase": "table",
+      "comment": "How finished matches become a league table. Points are awarded per the competition (3 for a win, 1 for a draw); then clubs are ordered by these rules: the first rule that separates two clubs decides their order.",
+      "rules": [
+        {
+          "label": "byPoints",
+          "check": "a.points > b.points",
+          "comment": "Most points."
+        },
+        {
+          "label": "byGoalDifference",
+          "check": "a.goalDifference > b.goalDifference",
+          "comment": "Best goal difference."
+        },
+        {
+          "label": "byGoalsScored",
+          "check": "a.goalsFor > b.goalsFor",
+          "comment": "Most goals scored."
+        },
+        {
+          "label": "byHeadToHeadPoints",
+          "check": "h2h(a, b).points > h2h(b, a).points",
+          "comment": "Most points in the matches between the tied clubs."
+        },
+        {
+          "label": "byHeadToHeadAwayGoals",
+          "check": "h2h(a, b).awayGoals > h2h(b, a).awayGoals",
+          "comment": "Most away goals in the matches between the tied clubs."
+        },
+        {
+          "label": "playOff",
+          "check": "playOff(a, b) when title, relegation or European places depend on it",
+          "comment": "A play-off at a neutral ground; otherwise the clubs share the position."
+        }
+      ]
+    },
+    {
+      "@id": "fb:MatchRules",
+      "@type": "RuleSet",
+      "module": "fb:premier-league",
+      "label": "MatchRules",
+      "phase": "match",
+      "comment": "Structural checks a Match must pass to be valid. A validator reports the first failing rule's error code.",
+      "rules": [
+        {
+          "label": "distinctTeams",
+          "errorCode": "same-team",
+          "check": "homeTeam != awayTeam",
+          "comment": "A club cannot play itself."
+        },
+        {
+          "label": "teamsInSeason",
+          "errorCode": "team-not-entered",
+          "check": "season.clubs.includes(homeTeam) && season.clubs.includes(awayTeam)",
+          "comment": "Both clubs must be entered in the season."
+        },
+        {
+          "label": "elevenStarters",
+          "errorCode": "bad-lineup-size",
+          "check": "lineup.appearances.filter(a => a.starter).length == 11",
+          "comment": "Exactly eleven starters per side."
+        },
+        {
+          "label": "nineSubstitutes",
+          "errorCode": "too-many-subs-named",
+          "check": "lineup.appearances.filter(a => !a.starter).length <= 9",
+          "comment": "Up to nine named substitutes."
+        },
+        {
+          "label": "oneGoalkeeper",
+          "errorCode": "no-goalkeeper",
+          "check": "lineup.appearances.some(a => a.starter && a.player.position == 'GK')",
+          "comment": "A goalkeeper must start."
+        },
+        {
+          "label": "fiveSubstitutions",
+          "errorCode": "too-many-substitutions",
+          "check": "events.filter(e => e is Substitution && e.club == c && !e.concussion).length <= 5",
+          "comment": "At most five substitutions per side, made in no more than three windows plus half-time; concussion substitutes are additional."
+        },
+        {
+          "label": "registeredPlayers",
+          "errorCode": "unregistered-player",
+          "check": "appearances.every(a => a.player in club.squad(season))",
+          "comment": "Every player named must hold a registration with the club for the season."
+        },
+        {
+          "label": "scorerOnPitch",
+          "errorCode": "scorer-not-on-pitch",
+          "check": "goal.scorer was on the pitch at goal.minute",
+          "comment": "Goals, cards and substitutions must refer to players who were on the pitch at the time."
+        }
+      ]
+    },
+    {
+      "@id": "fb:SquadRules",
+      "@type": "RuleSet",
+      "module": "fb:premier-league",
+      "label": "SquadRules",
+      "phase": "registration",
+      "comment": "Constraints on a club's registrations for a season.",
+      "rules": [
+        {
+          "label": "squadSize",
+          "errorCode": "squad-too-large",
+          "check": "squad.filter(r => r.player.age >= 21).length <= 25",
+          "comment": "At most 25 players aged 21 or over; under-21s are unlimited."
+        },
+        {
+          "label": "homegrownQuota",
+          "errorCode": "homegrown-quota",
+          "check": "squad.filter(r => r.player.age >= 21 && !r.homegrown).length <= 17",
+          "comment": "At most 17 of those 25 may be non-homegrown."
+        },
+        {
+          "label": "uniqueNumbers",
+          "errorCode": "duplicate-number",
+          "check": "new Set(squad.map(r => r.shirtNumber)).size == squad.length",
+          "comment": "Squad numbers are unique within a club for the season."
+        }
+      ]
+    }
+  ]
+}

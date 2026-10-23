@@ -1,0 +1,117 @@
+#!/usr/bin/env node
+// Self-checks, zero dependencies:
+//   1. the schema is closed: every type it names resolves
+//   2. class-diagram.svg and docs/class-diagram.mmd match the schema
+//   3. every example and the linked data/ graph conform to the schema and rules
+//   4. derived values for the reference match are what history recorded
+//
+//   node tools/check.js
+
+import { readFile, readdir } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
+import { loadSchema, loadGraph, loadDir, score, halfTimeScore, result } from './model.js';
+
+const root = new URL('..', import.meta.url);
+let failures = 0;
+const ok = (cond, msg) => { if (!cond) { failures++; console.log(`  ✗ ${msg}`); } return cond; };
+
+// 1 ---------------------------------------------------------------------
+console.log('schema');
+const S = await loadSchema();
+for (const n of S.nodes) {
+  if (n['@type'] === 'Module') continue;
+  ok(n.module && S.byId.get(n.module)?.['@type'] === 'Module', `${n['@id']}: module ${n.module} is not a Module`);
+  if (n.subClassOf) ok(S.byId.has(n.subClassOf), `${n['@id']}: subClassOf ${n.subClassOf} does not resolve`);
+  for (const f of [...(n.fields ?? []), ...(n.derived ?? [])]) {
+    for (const k of ['partType', 'refType', 'itemType'])
+      if (f[k]) ok(S.byId.get(f[k])?.['@type']?.endsWith('Class'), `${n.label}.${f.label}: ${k} ${f[k]} is not a class`);
+    if (f.enumType) ok(S.enums.has(f.enumType), `${n.label}.${f.label}: enumType ${f.enumType} is not an Enumeration`);
+    ok(f.comment, `${n.label}.${f.label}: missing comment`);
+  }
+}
+console.log(`  ${S.classes.size} classes, ${S.enums.size} enumerations`);
+
+// 2 ---------------------------------------------------------------------
+console.log('diagram');
+const before = await Promise.all(['class-diagram.svg', 'docs/class-diagram.mmd'].map((f) => readFile(new URL(f, root), 'utf8')));
+execFileSync(process.execPath, [new URL('gen-class-diagram.js', import.meta.url).pathname], { stdio: 'ignore' });
+const after = await Promise.all(['class-diagram.svg', 'docs/class-diagram.mmd'].map((f) => readFile(new URL(f, root), 'utf8')));
+ok(before[0] === after[0] && before[1] === after[1], 'diagram was stale (now regenerated — commit it)');
+
+// 3 ---------------------------------------------------------------------
+const META = new Set(['@id', '@type', 'comment', 'label']);
+function conform(node, g, where) {
+  const type = node['@type'];
+  if (!ok(S.classes.has(type), `${where}: unknown @type ${type}`)) return;
+  ok(S.classes.get(type)['@type'] !== 'AbstractClass', `${where}: ${type} is abstract`);
+  const fields = new Map(S.fieldsOf(type).map((f) => [f.label, f]));
+  for (const [k, v] of Object.entries(node)) {
+    if (META.has(k)) continue;
+    const f = fields.get(k);
+    if (!ok(f, `${where}: ${type} has no field "${k}"`)) continue;
+    if (f.enumType) ok(S.enums.get(f.enumType).members.some((m) => m.name === v), `${where}.${k}: "${v}" is not a ${f.enumType}`);
+    if (f.refType) for (const id of [].concat(v)) {
+      const target = g.byId.get(id);
+      if (ok(target, `${where}.${k}: ${id} does not resolve`))
+        ok(S.isA(target['@type'], S.byId.get(f.refType).label), `${where}.${k}: ${id} is a ${target['@type']}, expected ${f.refType}`);
+    }
+    // a part is embedded, or linked by IRI to a node in another file
+    if (f.partType) [].concat(v).forEach((part, i) => {
+      const node_ = typeof part === 'string' ? g.byId.get(part) : part;
+      if (!ok(node_, `${where}.${k}[${i}]: ${part} does not resolve`)) return;
+      if (typeof part !== 'string') conform(part, g, `${where}.${k}[${i}]`);
+      ok(S.isA(node_['@type'], S.byId.get(f.partType).label), `${where}.${k}[${i}]: expected ${f.partType}`);
+    });
+    if (f.valueType === 'int') ok(Number.isInteger(v), `${where}.${k}: expected int`);
+  }
+}
+
+const rel = (iri) => iri.replace(root.href, '');
+function checkGraph(g) {
+  for (const n of g.nodes) conform(n, g, rel(n['@id'] ?? g.url));
+  for (const m of g.nodes.filter((n) => n['@type'] === 'Match')) {
+    ok(m.homeTeam !== m.awayTeam, `${rel(m['@id'])}: same-team`);
+    for (const e of m.events ?? []) ok([m.homeTeam, m.awayTeam].includes(e.club), `${rel(m['@id'])}: event club ${rel(e.club)} is not playing`);
+    const subs = (c) => (m.events ?? []).filter((e) => e['@type'] === 'Substitution' && e.club === c && !e.concussion).length;
+    ok(subs(m.homeTeam) <= 5 && subs(m.awayTeam) <= 5, `${rel(m['@id'])}: too-many-substitutions`);
+  }
+}
+
+// examples are self-contained, one file each
+console.log('examples');
+const exDir = new URL('examples/', root);
+for (const file of (await readdir(exDir)).filter((f) => f.endsWith('.jsonld'))) {
+  const g = await loadGraph(new URL(file, exDir));
+  checkGraph(g);
+  console.log(`  ${file}: ${g.nodes.length} nodes`);
+}
+
+// data/ is one linked graph spread over many files
+console.log('data');
+const data = await loadDir(new URL('data/', root).pathname);
+checkGraph(data);
+for (const comp of data.nodes.filter((n) => n['@type'] === 'Competition')) {
+  for (const season of (comp.seasons ?? []).map((id) => data.byId.get(id)).filter(Boolean)) {
+    const where = rel(season['@id']);
+    if (comp.clubsPerSeason) ok(season.clubs.length === comp.clubsPerSeason, `${where}: ${season.clubs.length} clubs, ${comp.name} has ${comp.clubsPerSeason}`);
+    const tlas = season.clubs.map((c) => data.byId.get(c)?.tla);
+    ok(new Set(tlas).size === tlas.length, `${where}: duplicate club tla`);
+  }
+}
+for (const n of data.nodes.filter((n) => n['@type'] === 'Club'))
+  ok(n['@id'].endsWith(`/clubs/${n.tla}.jsonld#this`), `${rel(n['@id'])}: club file should be named clubs/${n.tla}.jsonld`);
+const count = (t) => data.nodes.filter((n) => n['@type'] === t).length;
+console.log(`  ${data.files.length} files: ${count('Competition')} competition, ${count('Season')} season, ${count('Club')} clubs, ${count('Stadium')} stadiums`);
+
+// 4 ---------------------------------------------------------------------
+console.log('derivations');
+const ex = await loadGraph(new URL('examples/2012-05-13-mci-qpr.jsonld', root));
+const m = ex.nodes.find((n) => n['@type'] === 'Match');
+const s = score(m), ht = halfTimeScore(m);
+ok(s.home === 3 && s.away === 2, `MCI–QPR /homeScore–/awayScore = ${s.home}–${s.away}, expected 3–2`);
+ok(ht.home === 1 && ht.away === 0, `MCI–QPR /halfTimeScore = ${ht.home}–${ht.away}, expected 1–0`);
+ok(result(m) === 'homeWin', `MCI–QPR /result = ${result(m)}, expected homeWin`);
+ok(score({ ...m, events: [{ '@type': 'Goal', club: m.awayTeam, kind: 'ownGoal' }] }).home === 1, 'own goal is credited to the opponent');
+
+console.log(failures ? `\n${failures} failure(s)` : '\nall checks pass');
+process.exit(failures ? 1 : 0);

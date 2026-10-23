@@ -1,0 +1,203 @@
+{
+  "@context": "../context.jsonld",
+  "@graph": [
+    {
+      "@id": "fb:match",
+      "@type": "Module",
+      "label": "match",
+      "version": "0.0.1",
+      "comment": "A single fixture and everything that happens in it. Only events are recorded; the score, the result and each player's minutes are derived from them, so a scoreline can never disagree with its goals.",
+      "layer": "event"
+    },
+
+    {
+      "@id": "fb:Match",
+      "@type": "EntityClass",
+      "module": "fb:match",
+      "label": "Match",
+      "comment": "One fixture between a home and an away club. The two lineups and the event log are owned by the match.",
+      "fields": [
+        { "property": "fb:kickoff", "label": "kickoff", "valueType": "dateTime", "comment": "Scheduled kick-off, in UTC." },
+        { "property": "fb:matchweek", "label": "matchweek", "valueType": "int", "comment": "Round of the season, 1–38 in the Premier League." },
+        { "property": "fb:status", "label": "status", "enumType": "fb:MatchStatus", "comment": "Where the match is in its lifecycle." },
+        { "property": "fb:attendance", "label": "attendance", "valueType": "int", "optional": true, "comment": "Official attendance, once published." },
+        { "property": "fb:homeTeam", "label": "homeTeam", "refType": "fb:Club", "multiplicity": "1", "comment": "The home club." },
+        { "property": "fb:awayTeam", "label": "awayTeam", "refType": "fb:Club", "multiplicity": "1", "comment": "The away club." },
+        { "property": "fb:venue", "label": "venue", "refType": "fb:Stadium", "multiplicity": "1", "comment": "Where it was played; normally the home club's ground." },
+        { "property": "fb:referee", "label": "referee", "refType": "fb:Referee", "multiplicity": "0..1", "comment": "The appointed referee." },
+        { "property": "fb:lineups", "label": "lineups", "partType": "fb:Lineup", "multiplicity": "0..2", "comment": "Team sheets: home first, then away. Absent until published." },
+        { "property": "fb:events", "label": "events", "partType": "fb:MatchEvent", "multiplicity": "0..*", "comment": "Everything that happened, in chronological order." }
+      ],
+      "derived": [
+        { "property": "fb:homeScore", "label": "homeScore", "derivation": "events.filter(e => e is Goal && e.creditedTo == homeTeam).length", "comment": "Goals credited to the home side (own goals count for the opponent)." },
+        { "property": "fb:awayScore", "label": "awayScore", "derivation": "events.filter(e => e is Goal && e.creditedTo == awayTeam).length", "comment": "Goals credited to the away side." },
+        { "property": "fb:result", "label": "result", "derivation": "sign(homeScore - awayScore) → homeWin | draw | awayWin", "comment": "Outcome from the home side's perspective; defined once status is finished." },
+        { "property": "fb:halfTimeScore", "label": "halfTimeScore", "derivation": "score(events.filter(e => e.period == 'firstHalf'))", "comment": "Score at the interval." }
+      ]
+    },
+
+    {
+      "@id": "fb:Lineup",
+      "@type": "EntityClass",
+      "module": "fb:match",
+      "label": "Lineup",
+      "comment": "One club's team sheet for a match: eleven starters, named substitutes, the formation and the manager.",
+      "fields": [
+        { "property": "fb:club", "label": "club", "refType": "fb:Club", "multiplicity": "1", "comment": "The club this team sheet belongs to." },
+        { "property": "fb:formation", "label": "formation", "valueType": "string", "comment": "Starting shape, outfield lines from back to front, e.g. \"4-3-3\"." },
+        { "property": "fb:manager", "label": "manager", "refType": "fb:Manager", "multiplicity": "1", "comment": "Manager in charge on the day." },
+        { "property": "fb:appearances", "label": "appearances", "partType": "fb:Appearance", "multiplicity": "11..20", "comment": "Starters and named substitutes (up to nine in the Premier League)." }
+      ]
+    },
+
+    {
+      "@id": "fb:Appearance",
+      "@type": "EntityClass",
+      "module": "fb:match",
+      "label": "Appearance",
+      "comment": "A player named on a team sheet. Minutes and involvement are derived from the match's substitution and card events.",
+      "fields": [
+        { "property": "fb:player", "label": "player", "refType": "fb:Player", "multiplicity": "1", "comment": "The player." },
+        { "property": "fb:shirtNumber", "label": "shirtNumber", "valueType": "int", "comment": "Number worn, taken from the player's registration." },
+        { "property": "fb:starter", "label": "starter", "valueType": "bool", "comment": "In the starting eleven (otherwise a named substitute)." },
+        { "property": "fb:captain", "label": "captain", "valueType": "bool", "comment": "Wore the armband at kick-off." }
+      ],
+      "derived": [
+        { "property": "fb:minutesPlayed", "label": "minutesPlayed", "derivation": "(timeOff ?? fullTime) - (timeOn ?? (starter ? 0 : null))", "comment": "Minutes on the pitch, from substitutions and dismissals." }
+      ]
+    },
+
+    {
+      "@id": "fb:MatchEvent",
+      "@type": "AbstractClass",
+      "module": "fb:match",
+      "label": "MatchEvent",
+      "comment": "Something that happened at a moment in a match. Time follows the broadcast convention: minute 90 with addedTime 4 is shown as 90+4'.",
+      "fields": [
+        { "property": "fb:minute", "label": "minute", "valueType": "int", "comment": "Match minute, 1–120." },
+        { "property": "fb:addedTime", "label": "addedTime", "valueType": "int", "optional": true, "comment": "Minutes into stoppage time, when the event falls after 45' or 90'." },
+        { "property": "fb:period", "label": "period", "enumType": "fb:Period", "comment": "Which period of play." },
+        { "property": "fb:club", "label": "club", "refType": "fb:Club", "multiplicity": "1", "comment": "Club of the player who performed the event." }
+      ],
+      "derived": [
+        { "property": "fb:clock", "label": "clock", "derivation": "addedTime ? `${minute}+${addedTime}'` : `${minute}'`", "comment": "Display time, e.g. 90+4'." }
+      ]
+    },
+
+    {
+      "@id": "fb:Goal",
+      "@type": "EntityClass",
+      "module": "fb:match",
+      "subClassOf": "fb:MatchEvent",
+      "label": "Goal",
+      "comment": "A goal. An own goal is recorded against the scorer's club but credited to the opponent.",
+      "fields": [
+        { "property": "fb:scorer", "label": "scorer", "refType": "fb:Player", "multiplicity": "1", "comment": "Player who scored (or put the ball into their own net)." },
+        { "property": "fb:assist", "label": "assist", "refType": "fb:Player", "multiplicity": "0..1", "comment": "Player who provided the final pass, if any." },
+        { "property": "fb:kind", "label": "kind", "enumType": "fb:GoalKind", "comment": "How the goal was scored." }
+      ],
+      "derived": [
+        { "property": "fb:creditedTo", "label": "creditedTo", "derivation": "kind == 'ownGoal' ? opponent(club) : club", "comment": "The club whose score the goal increases." }
+      ]
+    },
+
+    {
+      "@id": "fb:Card",
+      "@type": "EntityClass",
+      "module": "fb:match",
+      "subClassOf": "fb:MatchEvent",
+      "label": "Card",
+      "comment": "A caution or a dismissal.",
+      "fields": [
+        { "property": "fb:player", "label": "player", "refType": "fb:Person", "multiplicity": "1", "comment": "Player (or manager) shown the card." },
+        { "property": "fb:colour", "label": "colour", "enumType": "fb:CardColour", "comment": "Yellow, second yellow, or straight red." }
+      ]
+    },
+
+    {
+      "@id": "fb:Substitution",
+      "@type": "EntityClass",
+      "module": "fb:match",
+      "subClassOf": "fb:MatchEvent",
+      "label": "Substitution",
+      "comment": "One player replaced by a named substitute.",
+      "fields": [
+        { "property": "fb:playerOff", "label": "playerOff", "refType": "fb:Player", "multiplicity": "1", "comment": "Player leaving the pitch." },
+        { "property": "fb:playerOn", "label": "playerOn", "refType": "fb:Player", "multiplicity": "1", "comment": "Substitute coming on." },
+        { "property": "fb:concussion", "label": "concussion", "valueType": "bool", "comment": "A permanent concussion substitute, which does not count toward the limit." }
+      ]
+    },
+
+    {
+      "@id": "fb:MatchStatus",
+      "@type": "Enumeration",
+      "module": "fb:match",
+      "label": "MatchStatus",
+      "comment": "Lifecycle of a fixture.",
+      "members": [
+        { "name": "scheduled", "comment": "Fixture published; not yet started." },
+        { "name": "live", "comment": "In play." },
+        { "name": "halfTime", "comment": "At the interval." },
+        { "name": "finished", "comment": "Full time; result is final and counts in the table." },
+        { "name": "postponed", "comment": "Called off before kick-off; to be rearranged." },
+        { "name": "abandoned", "comment": "Stopped and not completed; the board decides whether the result stands." }
+      ]
+    },
+
+    {
+      "@id": "fb:Period",
+      "@type": "Enumeration",
+      "module": "fb:match",
+      "label": "Period",
+      "comment": "A period of play. League matches have two; extra time and shoot-outs apply to cup ties.",
+      "members": [
+        { "name": "firstHalf", "comment": "Minutes 1–45 plus stoppage time." },
+        { "name": "secondHalf", "comment": "Minutes 46–90 plus stoppage time." },
+        { "name": "extraTimeFirst", "comment": "Minutes 91–105 (cups only)." },
+        { "name": "extraTimeSecond", "comment": "Minutes 106–120 (cups only)." },
+        { "name": "penalties", "comment": "Penalty shoot-out (cups only); does not change the score." }
+      ]
+    },
+
+    {
+      "@id": "fb:GoalKind",
+      "@type": "Enumeration",
+      "module": "fb:match",
+      "label": "GoalKind",
+      "comment": "How a goal was scored.",
+      "members": [
+        { "name": "openPlay", "comment": "From open play." },
+        { "name": "header", "comment": "Headed in." },
+        { "name": "penalty", "comment": "Penalty kick." },
+        { "name": "freeKick", "comment": "Direct free kick." },
+        { "name": "ownGoal", "comment": "Into the scorer's own net; credited to the opponent." }
+      ]
+    },
+
+    {
+      "@id": "fb:CardColour",
+      "@type": "Enumeration",
+      "module": "fb:match",
+      "label": "CardColour",
+      "comment": "The card shown.",
+      "members": [
+        { "name": "yellow", "comment": "Caution." },
+        { "name": "secondYellow", "comment": "Second caution in the match; a dismissal." },
+        { "name": "red", "comment": "Straight dismissal." }
+      ]
+    },
+
+    {
+      "@id": "fb:Result",
+      "@type": "Enumeration",
+      "module": "fb:match",
+      "label": "Result",
+      "comment": "Outcome of a finished match, from the home side's perspective.",
+      "members": [
+        { "name": "homeWin", "comment": "Home side scored more." },
+        { "name": "draw", "comment": "Level at full time." },
+        { "name": "awayWin", "comment": "Away side scored more." }
+      ]
+    }
+  ]
+}
