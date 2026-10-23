@@ -6,7 +6,7 @@
       "@type": "Module",
       "label": "match",
       "version": "0.0.1",
-      "comment": "A single fixture and everything that happens in it. Only events are recorded; the score, the result and each player's minutes are derived from them, so a scoreline can never disagree with its goals.",
+      "comment": "A single fixture and everything that happens in it. Ideally only events are recorded and the score, the result and each player's minutes are derived from them. Where a source reports only the score, it is recorded as fullTime/halfTime; when both exist, rule scoreMatchesEvents makes them agree.",
       "layer": "event"
     },
 
@@ -26,13 +26,15 @@
         { "property": "fb:venue", "label": "venue", "refType": "fb:Stadium", "multiplicity": "1", "comment": "Where it was played; normally the home club's ground." },
         { "property": "fb:referee", "label": "referee", "refType": "fb:Referee", "multiplicity": "0..1", "comment": "The appointed referee." },
         { "property": "fb:lineups", "label": "lineups", "partType": "fb:Lineup", "multiplicity": "0..2", "comment": "Team sheets: home first, then away. Absent until published." },
-        { "property": "fb:events", "label": "events", "partType": "fb:MatchEvent", "multiplicity": "0..*", "comment": "Everything that happened, in chronological order." }
+        { "property": "fb:events", "label": "events", "partType": "fb:MatchEvent", "multiplicity": "0..*", "comment": "Everything that happened, in chronological order." },
+        { "property": "fb:fullTime", "label": "fullTime", "partType": "fb:Score", "multiplicity": "0..1", "comment": "Reported full-time score, for sources without an event log." },
+        { "property": "fb:halfTime", "label": "halfTime", "partType": "fb:Score", "multiplicity": "0..1", "comment": "Reported half-time score, for sources without an event log." }
       ],
       "derived": [
-        { "property": "fb:homeScore", "label": "homeScore", "derivation": "events.filter(e => e is Goal && e.creditedTo == homeTeam).length", "comment": "Goals credited to the home side (own goals count for the opponent)." },
-        { "property": "fb:awayScore", "label": "awayScore", "derivation": "events.filter(e => e is Goal && e.creditedTo == awayTeam).length", "comment": "Goals credited to the away side." },
+        { "property": "fb:homeScore", "label": "homeScore", "derivation": "events.some(e => e is Goal) ? events.filter(e => e is Goal && e.creditedTo == homeTeam).length : fullTime?.home", "comment": "Goals credited to the home side (own goals count for the opponent); the reported score when there is no event log." },
+        { "property": "fb:awayScore", "label": "awayScore", "derivation": "events.some(e => e is Goal) ? events.filter(e => e is Goal && e.creditedTo == awayTeam).length : fullTime?.away", "comment": "Goals credited to the away side; the reported score when there is no event log." },
         { "property": "fb:result", "label": "result", "derivation": "sign(homeScore - awayScore) → homeWin | draw | awayWin", "comment": "Outcome from the home side's perspective; defined once status is finished." },
-        { "property": "fb:halfTimeScore", "label": "halfTimeScore", "derivation": "score(events.filter(e => e.period == 'firstHalf'))", "comment": "Score at the interval." }
+        { "property": "fb:halfTimeScore", "label": "halfTimeScore", "derivation": "events.some(e => e is Goal) ? score(events.filter(e => e.period == 'firstHalf')) : halfTime", "comment": "Score at the interval." }
       ]
     },
 
@@ -125,6 +127,18 @@
         { "property": "fb:playerOff", "label": "playerOff", "refType": "fb:Player", "multiplicity": "1", "comment": "Player leaving the pitch." },
         { "property": "fb:playerOn", "label": "playerOn", "refType": "fb:Player", "multiplicity": "1", "comment": "Substitute coming on." },
         { "property": "fb:concussion", "label": "concussion", "valueType": "bool", "comment": "A permanent concussion substitute, which does not count toward the limit." }
+      ]
+    },
+
+    {
+      "@id": "fb:Score",
+      "@type": "EntityClass",
+      "module": "fb:match",
+      "label": "Score",
+      "comment": "A scoreline as reported by a source, e.g. 3–0. A summary only: when the match has an event log, the score is derived from its goals instead.",
+      "fields": [
+        { "property": "fb:home", "label": "home", "valueType": "int", "comment": "Goals for the home side." },
+        { "property": "fb:away", "label": "away", "valueType": "int", "comment": "Goals for the away side." }
       ]
     },
 

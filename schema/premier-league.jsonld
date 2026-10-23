@@ -104,6 +104,12 @@
           "errorCode": "scorer-not-on-pitch",
           "check": "goal.scorer was on the pitch at goal.minute",
           "comment": "Goals, cards and substitutions must refer to players who were on the pitch at the time."
+        },
+        {
+          "label": "scoreMatchesEvents",
+          "errorCode": "score-mismatch",
+          "check": "!events.some(e => e is Goal) || !fullTime || (fullTime.home == homeScore && fullTime.away == awayScore)",
+          "comment": "A reported score must agree with the goals in the event log."
         }
       ]
     },
@@ -132,6 +138,28 @@
           "errorCode": "duplicate-number",
           "check": "new Set(squad.map(r => r.shirtNumber)).size == squad.length",
           "comment": "Squad numbers are unique within a club for the season."
+        }
+      ]
+    },
+    {
+      "@id": "fb:SeasonRules",
+      "@type": "RuleSet",
+      "module": "fb:premier-league",
+      "label": "SeasonRules",
+      "phase": "season",
+      "comment": "Structural checks on a season's fixture list.",
+      "rules": [
+        {
+          "label": "doubleRoundRobin",
+          "errorCode": "bad-fixture-list",
+          "check": "every ordered pair (a, b) of distinct clubs meets exactly once with a at home",
+          "comment": "Each club plays every other club twice, once at home and once away: 380 matches for 20 clubs."
+        },
+        {
+          "label": "matchweekSize",
+          "errorCode": "bad-matchweek",
+          "check": "matches.filter(m => m.matchweek == w).length == clubsPerSeason / 2",
+          "comment": "Each matchweek has ten matches; rearranged fixtures keep their original matchweek."
         }
       ]
     }

@@ -9,7 +9,7 @@
 
 import { readFile, readdir } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
-import { loadSchema, loadGraph, loadDir, score, halfTimeScore, result } from './model.js';
+import { loadSchema, loadGraph, loadDir, score, goalScore, halfTimeScore, result } from './model.js';
 
 const root = new URL('..', import.meta.url);
 let failures = 0;
@@ -44,10 +44,10 @@ async function fresh(label, script, files) {
   ok(before.every((x, i) => x === after[i]), `${label} was stale (now regenerated — commit it)`);
 }
 await fresh('diagram', 'gen-class-diagram.js', ['class-diagram.svg', 'docs/class-diagram.mmd']);
-await fresh('site', 'gen-site.js', await generated('clubs/', '.html'));
+await fresh('site', 'gen-site.js', [...await generated('clubs/', '.html'), ...await generated('fixtures/', '.html')]);
 
 // 3 ---------------------------------------------------------------------
-const META = new Set(['@id', '@type', 'comment', 'label']);
+const META = new Set(['@id', '@type', 'comment', 'label', 'seeAlso']);
 function conform(node, g, where) {
   const type = node['@type'];
   if (!ok(S.classes.has(type), `${where}: unknown @type ${type}`)) return;
@@ -83,6 +83,10 @@ function checkGraph(g) {
     for (const e of m.events ?? []) ok([m.homeTeam, m.awayTeam].includes(e.club), `${rel(m['@id'])}: event club ${rel(e.club)} is not playing`);
     const subs = (c) => (m.events ?? []).filter((e) => e['@type'] === 'Substitution' && e.club === c && !e.concussion).length;
     ok(subs(m.homeTeam) <= 5 && subs(m.awayTeam) <= 5, `${rel(m['@id'])}: too-many-substitutions`);
+    if (m.fullTime && (m.events ?? []).some((e) => e['@type'] === 'Goal')) {
+      const g = goalScore(m);
+      ok(g.home === m.fullTime.home && g.away === m.fullTime.away, `${rel(m['@id'])}: score-mismatch (events ${g.home}–${g.away}, reported ${m.fullTime.home}–${m.fullTime.away})`);
+    }
   }
 }
 
@@ -105,6 +109,19 @@ for (const comp of data.nodes.filter((n) => n['@type'] === 'Competition')) {
     if (comp.clubsPerSeason) ok(season.clubs.length === comp.clubsPerSeason, `${where}: ${season.clubs.length} clubs, ${comp.name} has ${comp.clubsPerSeason}`);
     const tlas = season.clubs.map((c) => data.byId.get(c)?.tla);
     ok(new Set(tlas).size === tlas.length, `${where}: duplicate club tla`);
+    // fb:SeasonRules — only once the fixture list is in
+    const matches = (season.matches ?? []).map((id) => data.byId.get(id));
+    if (!ok(matches.every(Boolean), `${where}: a linked match does not resolve`) || !matches.length) continue;
+    const n = season.clubs.length;
+    const pairs = new Set(matches.map((m) => `${m.homeTeam} ${m.awayTeam}`));
+    ok(matches.length === n * (n - 1) && pairs.size === matches.length, `${where}: bad-fixture-list (${matches.length} matches, ${pairs.size} distinct pairings, expected ${n * (n - 1)})`);
+    for (const m of matches) ok(season.clubs.includes(m.homeTeam) && season.clubs.includes(m.awayTeam), `${rel(m['@id'])}: team-not-entered`);
+    const weeks = Map.groupBy(matches, (m) => m.matchweek);
+    for (const [w, list] of weeks) ok(list.length === n / 2, `${where}: bad-matchweek ${w} has ${list.length} matches`);
+    const finished = matches.filter((m) => m.status === 'finished');
+    ok(finished.every((m) => m.fullTime || (m.events ?? []).length), `${where}: a finished match has no score`);
+    if (season.resultsAsOf) ok(finished.every((m) => m.kickoff.slice(0, 10) <= season.resultsAsOf), `${where}: a result is newer than resultsAsOf`);
+    console.log(`  ${season.label}: ${matches.length} matches in ${weeks.size} matchweeks, ${finished.length} finished`);
   }
 }
 for (const n of data.nodes.filter((n) => n['@type'] === 'Club'))
@@ -121,6 +138,7 @@ ok(s.home === 3 && s.away === 2, `MCI–QPR /homeScore–/awayScore = ${s.home}�
 ok(ht.home === 1 && ht.away === 0, `MCI–QPR /halfTimeScore = ${ht.home}–${ht.away}, expected 1–0`);
 ok(result(m) === 'homeWin', `MCI–QPR /result = ${result(m)}, expected homeWin`);
 ok(score({ ...m, events: [{ '@type': 'Goal', club: m.awayTeam, kind: 'ownGoal' }] }).home === 1, 'own goal is credited to the opponent');
+ok(score({ homeTeam: 'h', awayTeam: 'a', fullTime: { home: 2, away: 1 } }).home === 2, 'reported score stands in without an event log');
 
 console.log(failures ? `\n${failures} failure(s)` : '\nall checks pass');
 process.exit(failures ? 1 : 0);

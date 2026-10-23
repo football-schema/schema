@@ -86,14 +86,19 @@ const opponent = (m, club) => (club === m.homeTeam ? m.awayTeam : m.homeTeam);
 export const creditedTo = (m, g) => (g.kind === 'ownGoal' ? opponent(m, g.club) : g.club);
 export const clock = (e) => (e.addedTime ? `${e.minute}+${e.addedTime}'` : `${e.minute}'`);
 
-export function score(m, events = m.events ?? []) {
+const hasGoalLog = (m) => (m.events ?? []).some((e) => e['@type'] === 'Goal');
+export const goalScore = (m, events = m.events ?? []) => {
   const goals = events.filter((e) => e['@type'] === 'Goal');
   return {
     home: goals.filter((g) => creditedTo(m, g) === m.homeTeam).length,
     away: goals.filter((g) => creditedTo(m, g) === m.awayTeam).length,
   };
-}
-export const halfTimeScore = (m) => score(m, (m.events ?? []).filter((e) => e.period === 'firstHalf'));
+};
+// the event log wins; a reported score stands in when there is none
+export const score = (m) => (hasGoalLog(m) || !m.fullTime ? goalScore(m) : { home: m.fullTime.home, away: m.fullTime.away });
+export const halfTimeScore = (m) => (hasGoalLog(m) || !m.halfTime
+  ? goalScore(m, (m.events ?? []).filter((e) => e.period === 'firstHalf'))
+  : { home: m.halfTime.home, away: m.halfTime.away });
 export function result(m) {
   if (m.status !== 'finished') return null;
   const { home, away } = score(m);

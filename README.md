@@ -34,23 +34,38 @@ data/
   clubs/ARS.jsonld …                   #this: the club, #stadium: its home ground
 ```
 
+## Fixtures and results
+
+All 380 fixtures of 2026/27 live in `data/matches/2026-27/mw01.jsonld … mw38.jsonld`, linked from the
+season. They are imported from [openfootball](https://github.com/openfootball/football.json) (CC0)
+by [`tools/import-openfootball.js`](tools/import-openfootball.js), which maps team names to the club
+files and converts UK kick-off times to UTC. openfootball reports scores, not goals, so these
+matches carry a reported `fullTime` / `halfTime` `Score`; when a match also has an event log the
+`scoreMatchesEvents` rule makes the two agree. The season's `resultsAsOf` records how fresh the
+results are, and `npm test` checks the fixture list is a complete double round-robin.
+
+Re-run `npm run import` when the source updates; it rewrites the matchweek files and the site.
+
 ## Site
 
-[`clubs/`](clubs/) is the presentation layer: a league page and one page per club
-(`clubs/arsenal/`, `clubs/manchester-city/`, …) in the club's colours, generated as static
-HTML from `data/` by [`tools/gen-site.js`](tools/gen-site.js). Shields are drawn from club
-colours, not official crests. The schema pages stay plain; they are the reference, this is
-what people read.
+The presentation layer, generated as static HTML from `data/` by [`tools/gen-site.js`](tools/gen-site.js)
+(builders in `tools/site/`, hand-written CSS and JS in `assets/`):
 
-A club is described once and outlives any one season. `npm test` loads `data/` as one linked
-graph and checks every link resolves, every node conforms to the schema, and each season has
-the competition's `clubsPerSeason` (20) clubs with unique codes.
+- [`fixtures/`](fixtures/) — a scoreboard: one matchweek at a time grouped by day, a club filter,
+  and the league table computed from the results. Kick-offs show in the viewer's time zone, and
+  played matches without an imported result are flagged rather than shown as upcoming.
+- [`clubs/`](clubs/) — a league page and one page per club in its colours, with position, form,
+  latest results and next fixtures.
+
+Shields are drawn from club colours, not official crests. The pages work without JavaScript;
+`assets/scores.js` only adds navigation and local times.
 
 ## Tools
 
 ```
 npm run diagram   # regenerate class-diagram.svg + docs/class-diagram.mmd
-npm run site      # regenerate clubs/ from data/
+npm run site      # regenerate fixtures/ and clubs/ from data/
+npm run import    # pull fixtures and results from openfootball, then rebuild the site
 npm run derive    # scores, timelines and the table for examples/
 npm test          # schema closure, diagram + site freshness, data conformance, derivations
 ```

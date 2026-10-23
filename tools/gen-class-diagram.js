@@ -89,12 +89,13 @@ const POS = {
   'fb:Player':       { x: COL[2], y: 710 },
   'fb:Manager':      { x: COL[3], y: 710 },
   'fb:Referee':      { x: COL[4], y: 710 },
-  'fb:Lineup':       { x: COL[1], y: 1060 },
-  'fb:MatchEvent':   { x: COL[3], y: 1060 },
-  'fb:Appearance':   { x: COL[1], y: 1260 },
-  'fb:Goal':         { x: COL[2], y: 1310 },
-  'fb:Card':         { x: COL[3], y: 1310 },
-  'fb:Substitution': { x: COL[4], y: 1310 },
+  'fb:Score':        { x: COL[0], y: 1100 },
+  'fb:Lineup':       { x: COL[1], y: 1100 },
+  'fb:MatchEvent':   { x: COL[3], y: 1100 },
+  'fb:Appearance':   { x: COL[1], y: 1300 },
+  'fb:Goal':         { x: COL[2], y: 1350 },
+  'fb:Card':         { x: COL[3], y: 1350 },
+  'fb:Substitution': { x: COL[4], y: 1350 },
 };
 const WIDTH = 1470, W = 230, HEAD = 34, LINE = 23, PAD = 10, CHW = 7.6; // monospace advance at 12.5px
 const MONO = 'ui-monospace, Menlo, Consolas, monospace';
@@ -169,6 +170,14 @@ function svg() {
     else use(ed.from, ed.down ? 'bottom' : 'top', ed);
     use(ed.to, ed.down ? 'top' : 'bottom', ed);
   }
+  // order each side's ports by where the far end sits, so edges fan out
+  // instead of crossing
+  const centre = (b) => b.x + W / 2;
+  const far = (o, id) => (o.isa ? centre(box.get(o.isa)) : centre(o.from.m.id === id ? o.to : o.from));
+  for (const [k, list] of ports) {
+    const id = k.slice(0, k.lastIndexOf(':')); // ids contain a colon themselves (fb:Match)
+    if (Array.isArray(list)) list.sort((a, b) => far(a, id) - far(b, id));
+  }
   const portX = (bx, side, key) => {
     const list = ports.get(`${bx.m.id}:${side}`) ?? [key];
     const list2 = list.map((k) => (k.isa ? k.isa : k));
@@ -179,6 +188,27 @@ function svg() {
   const label = (x, y, s, anchor = 'start') =>
     `<text x="${x}" y="${y}" font-family="${MONO}" font-size="11.5" fill="${C.muted}" text-anchor="${anchor}">${esc(s)}</text>`;
   const isaTargets = new Set();
+
+  // Edges leaving one side share the gap below it. Give each bent edge its
+  // own horizontal level: edges heading left stack outermost-first, edges
+  // heading right likewise, so no vertical run crosses another's horizontal.
+  const STEP = 16;
+  const ends = (o) => ({
+    px: portX(o.from, o.down ? 'bottom' : 'top', o), py: o.down ? o.from.y + o.from.h : o.from.y,
+    cx: portX(o.to, o.down ? 'top' : 'bottom', o), cy: o.down ? o.to.y : o.to.y + o.to.h,
+  });
+  function runY(ed, s) {
+    const { px, py, cx, cy } = ends(ed);
+    const base = py + (cy - py) / 2;
+    if (px === cx) return Math.round(base);
+    const dir = Math.sign(cx - px);
+    const group = ports.get(`${ed.from.m.id}:${ed.down ? 'bottom' : 'top'}`)
+      .filter((o) => !o.isa && o.e.kind !== 'isa').map((o) => ({ o, ...ends(o) }))
+      .filter((g) => g.px !== g.cx && Math.sign(g.cx - g.px) === dir);
+    const r = group.findIndex((g) => g.o === ed), n = group.length;
+    const rank = dir < 0 ? r : n - 1 - r; // 0 = outermost, runs nearest the source
+    return Math.round(base + s * (rank - (n - 1) / 2) * STEP);
+  }
 
   for (const ed of edges) {
     const { e, from, to } = ed;
@@ -214,7 +244,7 @@ function svg() {
     const s = ed.down ? 1 : -1;
     const px = portX(from, ed.down ? 'bottom' : 'top', ed), py = ed.down ? from.y + from.h : from.y;
     const cx = portX(to, ed.down ? 'top' : 'bottom', ed), cy = ed.down ? to.y : to.y + to.h;
-    const midY = Math.round(py + (cy - py) / 2);
+    const midY = runY(ed, s);
     const start = e.kind === 'part' ? py + 18 * s : py;
     out.push(`<path d="M${px},${start} L${px},${midY} L${cx},${midY} L${cx},${cy}" fill="none" stroke="${stroke}" stroke-width="1.4"${dash}/>`);
     if (e.kind === 'part') out.push(`<path d="M${px},${py} l7,${9 * s} l-7,${9 * s} l-7,${-9 * s} z" fill="${C.fg}"/>`);

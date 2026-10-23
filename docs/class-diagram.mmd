@@ -18,6 +18,7 @@ classDiagram
     +date startDate
     +date endDate
     +Club[]? promoted
+    +date? resultsAsOf
     +champion() derived
   }
   class Club {
@@ -108,6 +109,10 @@ classDiagram
     +Player playerOn
     +bool concussion
   }
+  class Score {
+    +int home
+    +int away
+  }
   class Standing {
     +Club club
     +Season season
@@ -133,6 +138,8 @@ classDiagram
   Person <|-- Referee
   Match "1" *-- "0..2" Lineup : lineups
   Match "1" *-- "0..*" MatchEvent : events
+  Match "1" *-- "0..1" Score : fullTime
+  Match "1" *-- "0..1" Score : halfTime
   Lineup "1" *-- "11..20" Appearance : appearances
   MatchEvent <|-- Goal
   MatchEvent <|-- Card

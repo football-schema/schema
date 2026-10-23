@@ -46,7 +46,8 @@
         { "property": "fb:endDate", "label": "endDate", "valueType": "date", "comment": "Date of the last scheduled match." },
         { "property": "fb:clubs", "label": "clubs", "refType": "fb:Club", "multiplicity": "2..*", "comment": "Clubs entered in this season (20 in the Premier League)." },
         { "property": "fb:promoted", "label": "promoted", "refType": "fb:Club", "multiplicity": "0..*", "comment": "Clubs that joined from the division below for this season." },
-        { "property": "fb:matches", "label": "matches", "partType": "fb:Match", "multiplicity": "0..*", "comment": "All fixtures of the season, played or not." }
+        { "property": "fb:matches", "label": "matches", "partType": "fb:Match", "multiplicity": "0..*", "comment": "All fixtures of the season, played or not. Embedded, or linked by IRI to matchweek files." },
+        { "property": "fb:resultsAsOf", "label": "resultsAsOf", "valueType": "date", "optional": true, "comment": "Date of the latest result included; later fixtures may have been played without their results being recorded yet." }
       ],
       "derived": [
         { "property": "fb:table", "label": "table", "itemType": "fb:Standing", "derivation": "classify(clubs.map(c => standing(c, matches)), rules)", "comment": "League table: one Standing per club, ordered by the competition's tie-break rules." },
