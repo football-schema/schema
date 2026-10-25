@@ -19,6 +19,7 @@ classDiagram
     +date endDate
     +Club[]? promoted
     +date? resultsAsOf
+    +SeasonCoverage? coverage
     +champion() derived
   }
   class PointsDeduction {
@@ -150,7 +151,53 @@ classDiagram
     +dateTime updated
     +string schemaVersion
     +Competition[]? competitions
-    +Season[] seasons
+    +Season[]? seasons
+    +iri includes
+  }
+  class ForecastModel {
+    +string name
+    +string? modelVersion
+    +string? method
+  }
+  class Rating {
+    +Club club
+    +ForecastModel model
+    +decimal value
+    +date asOf
+    +int? rank
+  }
+  class MatchForecast {
+    +Match fixture
+    +ForecastModel model
+    +dateTime issued
+    +decimal homeWin
+    +decimal draw
+    +decimal awayWin
+    +decimal? expectedHomeGoals
+    +decimal? expectedAwayGoals
+    +decimal? bothTeamsScore
+    +logLoss() derived
+    +rps() derived
+  }
+  class GoalLine {
+    +decimal line
+    +decimal over
+  }
+  class ScoreChance {
+    +int home
+    +int away
+    +decimal chance
+  }
+  class SeasonProjection {
+    +Club club
+    +Season season
+    +ForecastModel model
+    +dateTime issued
+    +decimal expectedPoints
+    +decimal[] positions
+    +string? scenario
+    +championChance() derived
+    +zoneChance() derived
   }
   Competition "1" *-- "0..*" TableZone : zones
   Competition "1" *-- "1..*" Season : seasons
@@ -172,3 +219,5 @@ classDiagram
   MatchEvent <|-- Goal
   MatchEvent <|-- Card
   MatchEvent <|-- Substitution
+  MatchForecast "1" *-- "0..*" GoalLine : goalLines
+  MatchForecast "1" *-- "0..*" ScoreChance : scores

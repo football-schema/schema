@@ -1,0 +1,127 @@
+{
+  "@context": "../context.jsonld",
+  "@graph": [
+    {
+      "@id": "fb:forecast",
+      "@type": "Module",
+      "label": "forecast",
+      "version": "0.0.3",
+      "comment": "Ratings and predictions, kept apart from what happened. A forecast is published before the event by a named model and points at the match, club or season it is about, which may live in another dataset; once the match is played anyone can score it (/logLoss, /rps). Chances are probabilities from 0 to 1.",
+      "layer": "forecast"
+    },
+
+    {
+      "@id": "fb:ForecastModel",
+      "@type": "EntityClass",
+      "module": "fb:forecast",
+      "label": "ForecastModel",
+      "comment": "The model behind a set of ratings and forecasts, e.g. an Elo rating with a goals model. Link its documentation with seeAlso.",
+      "fields": [
+        { "property": "fb:name", "label": "name", "valueType": "string", "comment": "What the model is called." },
+        { "property": "fb:modelVersion", "label": "modelVersion", "valueType": "string", "optional": true, "comment": "Version or settings date, so forecasts from different settings are not mixed up." },
+        { "property": "fb:method", "label": "method", "valueType": "string", "optional": true, "comment": "How it works, in a sentence." }
+      ]
+    },
+
+    {
+      "@id": "fb:Rating",
+      "@type": "EntityClass",
+      "module": "fb:forecast",
+      "label": "Rating",
+      "comment": "A club's strength on one model's scale on a date, e.g. an Elo rating. Ratings from different models are not comparable.",
+      "fields": [
+        { "property": "fb:club", "label": "club", "refType": "fb:Club", "multiplicity": "1", "comment": "The club rated." },
+        { "property": "fb:model", "label": "model", "refType": "fb:ForecastModel", "multiplicity": "1", "comment": "The model whose scale this is." },
+        { "property": "fb:value", "label": "value", "valueType": "decimal", "comment": "The rating." },
+        { "property": "fb:asOf", "label": "asOf", "valueType": "date", "comment": "Date of the last result the rating includes." },
+        { "property": "fb:rank", "label": "rank", "valueType": "int", "optional": true, "comment": "Place among the clubs the model rates together, 1 for the highest." }
+      ]
+    },
+
+    {
+      "@id": "fb:MatchForecast",
+      "@type": "EntityClass",
+      "module": "fb:forecast",
+      "label": "MatchForecast",
+      "comment": "One model's chances for one match, issued before kick-off.",
+      "fields": [
+        { "property": "fb:fixture", "label": "fixture", "refType": "fb:Match", "multiplicity": "1", "comment": "The match forecast, in any dataset." },
+        { "property": "fb:model", "label": "model", "refType": "fb:ForecastModel", "multiplicity": "1", "comment": "The model that made the forecast." },
+        { "property": "fb:issued", "label": "issued", "valueType": "dateTime", "comment": "When the forecast was made; it must be before kick-off to count." },
+        { "property": "fb:homeWin", "label": "homeWin", "valueType": "decimal", "comment": "Chance of a home win, 0 to 1." },
+        { "property": "fb:draw", "label": "draw", "valueType": "decimal", "comment": "Chance of a draw." },
+        { "property": "fb:awayWin", "label": "awayWin", "valueType": "decimal", "comment": "Chance of an away win; the three add up to 1." },
+        { "property": "fb:expectedHomeGoals", "label": "expectedHomeGoals", "valueType": "decimal", "optional": true, "comment": "Goals the home side is expected to score." },
+        { "property": "fb:expectedAwayGoals", "label": "expectedAwayGoals", "valueType": "decimal", "optional": true, "comment": "Goals the away side is expected to score." },
+        { "property": "fb:bothTeamsScore", "label": "bothTeamsScore", "valueType": "decimal", "optional": true, "comment": "Chance that both sides score." },
+        { "property": "fb:goalLines", "label": "goalLines", "partType": "fb:GoalLine", "multiplicity": "0..*", "comment": "Chances of more goals than each line, e.g. over 2.5." },
+        { "property": "fb:scores", "label": "scores", "partType": "fb:ScoreChance", "multiplicity": "0..*", "comment": "The likeliest final scores and their chances; need not be every score." }
+      ],
+      "derived": [
+        { "property": "fb:logLoss", "label": "logLoss", "derivation": "-ln(chance of fixture.result)", "comment": "Once the match is finished: how surprised the forecast was; lower is better." },
+        { "property": "fb:rps", "label": "rps", "derivation": "((homeWin - h)^2 + (homeWin + draw - h - d)^2) / 2  where h, d = 1 if the result was a home win, a draw", "comment": "Ranked probability score once finished, which also rewards being nearly right; lower is better." }
+      ]
+    },
+
+    {
+      "@id": "fb:GoalLine",
+      "@type": "EntityClass",
+      "module": "fb:forecast",
+      "label": "GoalLine",
+      "comment": "The chance of more total goals than a line.",
+      "fields": [
+        { "property": "fb:line", "label": "line", "valueType": "decimal", "comment": "The line, e.g. 2.5." },
+        { "property": "fb:over", "label": "over", "valueType": "decimal", "comment": "Chance of more goals than the line." }
+      ]
+    },
+
+    {
+      "@id": "fb:ScoreChance",
+      "@type": "EntityClass",
+      "module": "fb:forecast",
+      "label": "ScoreChance",
+      "comment": "The chance of one exact final score.",
+      "fields": [
+        { "property": "fb:home", "label": "home", "valueType": "int", "comment": "Home goals." },
+        { "property": "fb:away", "label": "away", "valueType": "int", "comment": "Away goals." },
+        { "property": "fb:chance", "label": "chance", "valueType": "decimal", "comment": "Chance of exactly this score." }
+      ]
+    },
+
+    {
+      "@id": "fb:SeasonProjection",
+      "@type": "EntityClass",
+      "module": "fb:forecast",
+      "label": "SeasonProjection",
+      "comment": "One model's view of where a club will finish, from the season played out many times. A scenario names an assumption it rests on, e.g. a points deduction not yet decided.",
+      "fields": [
+        { "property": "fb:club", "label": "club", "refType": "fb:Club", "multiplicity": "1", "comment": "The club." },
+        { "property": "fb:season", "label": "season", "refType": "fb:Season", "multiplicity": "1", "comment": "The season projected." },
+        { "property": "fb:model", "label": "model", "refType": "fb:ForecastModel", "multiplicity": "1", "comment": "The model." },
+        { "property": "fb:issued", "label": "issued", "valueType": "dateTime", "comment": "When the projection was made." },
+        { "property": "fb:expectedPoints", "label": "expectedPoints", "valueType": "decimal", "comment": "Average final points." },
+        { "property": "fb:positions", "label": "positions", "valueType": "decimal[]", "comment": "Chance of each finishing place, first place first; one per club in the season, adding up to 1." },
+        { "property": "fb:scenario", "label": "scenario", "valueType": "string", "optional": true, "comment": "The assumption the projection rests on, if any; absent means as things stand." }
+      ],
+      "derived": [
+        { "property": "fb:championChance", "label": "championChance", "derivation": "positions[0]", "comment": "Chance of finishing first." },
+        { "property": "fb:zoneChance", "label": "zoneChance", "derivation": "kind => sum(positions[z.from - 1 .. z.to - 1]) for the competition's zones of that kind", "comment": "Chance of finishing in each kind of table zone: Champions League, relegation, ..." }
+      ]
+    },
+
+    {
+      "@id": "fb:ForecastRules",
+      "@type": "RuleSet",
+      "module": "fb:forecast",
+      "label": "ForecastRules",
+      "phase": "publish",
+      "comment": "Checks that hold for any forecast, whatever the competition.",
+      "rules": [
+        { "label": "chances", "errorCode": "bad-chance", "check": "every chance is between 0 and 1", "comment": "homeWin, draw, awayWin, bothTeamsScore, GoalLine.over, ScoreChance.chance and every position." },
+        { "label": "outcomesAddUp", "errorCode": "outcomes-dont-add-up", "check": "abs(homeWin + draw + awayWin - 1) <= 0.01", "comment": "Allows for rounding." },
+        { "label": "positionsAddUp", "errorCode": "positions-dont-add-up", "check": "positions.length == season.clubs.length && abs(sum(positions) - 1) <= 0.01", "comment": "One chance per place, adding up to 1." },
+        { "label": "beforeKickoff", "errorCode": "issued-after-kickoff", "check": "issued < fixture.kickoff", "comment": "A forecast made after kick-off is not a forecast." }
+      ]
+    }
+  ]
+}

@@ -18,7 +18,8 @@ implemented once in [`tools/model.js`](tools/model.js).
 | [`match`](schema/match.jsonld) | event | Match, Score, Lineup, Appearance, MatchEvent → Goal / Card / Substitution; status, period, goal and card enums |
 | [`table`](schema/table.jsonld) | projection | Standing: every column derived from finished matches |
 | [`premier-league`](schema/premier-league.jsonld) | competition | Premier League rules: tie-break order, match, squad and season rules |
-| [`catalogue`](schema/catalogue.jsonld) | catalogue | Dataset: who publishes the data, on what terms, and a link to every season |
+| [`catalogue`](schema/catalogue.jsonld) | catalogue | Dataset: who publishes the data, on what terms, and a link to every season and any other documents |
+| [`forecast`](schema/forecast.jsonld) | forecast | ForecastModel, Rating, MatchForecast (with GoalLines and ScoreChances), SeasonProjection; ForecastRules. Scored once played (`/logLoss`, `/rps`) |
 
 Another league reuses `core`, `match` and `table` and adds its own rules module.
 
@@ -49,6 +50,7 @@ classDiagram
     +date endDate
     +Club[]? promoted
     +date? resultsAsOf
+    +SeasonCoverage? coverage
     +champion() derived
   }
   class PointsDeduction {
@@ -180,7 +182,53 @@ classDiagram
     +dateTime updated
     +string schemaVersion
     +Competition[]? competitions
-    +Season[] seasons
+    +Season[]? seasons
+    +iri includes
+  }
+  class ForecastModel {
+    +string name
+    +string? modelVersion
+    +string? method
+  }
+  class Rating {
+    +Club club
+    +ForecastModel model
+    +decimal value
+    +date asOf
+    +int? rank
+  }
+  class MatchForecast {
+    +Match fixture
+    +ForecastModel model
+    +dateTime issued
+    +decimal homeWin
+    +decimal draw
+    +decimal awayWin
+    +decimal? expectedHomeGoals
+    +decimal? expectedAwayGoals
+    +decimal? bothTeamsScore
+    +logLoss() derived
+    +rps() derived
+  }
+  class GoalLine {
+    +decimal line
+    +decimal over
+  }
+  class ScoreChance {
+    +int home
+    +int away
+    +decimal chance
+  }
+  class SeasonProjection {
+    +Club club
+    +Season season
+    +ForecastModel model
+    +dateTime issued
+    +decimal expectedPoints
+    +decimal[] positions
+    +string? scenario
+    +championChance() derived
+    +zoneChance() derived
   }
   Competition "1" *-- "0..*" TableZone : zones
   Competition "1" *-- "1..*" Season : seasons
@@ -202,6 +250,8 @@ classDiagram
   MatchEvent <|-- Goal
   MatchEvent <|-- Card
   MatchEvent <|-- Substitution
+  MatchForecast "1" *-- "0..*" GoalLine : goalLines
+  MatchForecast "1" *-- "0..*" ScoreChance : scores
 ```
 
 ## Using it
@@ -235,8 +285,9 @@ Premier League's match and season rules (for example a complete double round-rob
 Worked examples: [`2012-05-13-mci-qpr.jsonld`](examples/2012-05-13-mci-qpr.jsonld), Manchester City 3–2
 QPR recorded as events only (`npm run derive` computes its score and table);
 [`2023-24-deductions.jsonld`](examples/2023-24-deductions.jsonld), Everton's and Forest's points deductions
-with their source and Wikidata identities; and [`dataset.jsonld`](examples/dataset.jsonld), a Dataset that
-links to it.
+with their source and Wikidata identities; [`2012-05-13-forecast.jsonld`](examples/2012-05-13-forecast.jsonld),
+an (illustrative) forecast for that MCI–QPR match in another document, scored by `forecastScore()`; and
+[`dataset.jsonld`](examples/dataset.jsonld), a Dataset that links to them.
 
 ## Publishing data
 
@@ -251,6 +302,8 @@ So that anyone can build on what you publish:
 - **Serve `application/ld+json` with `Access-Control-Allow-Origin: *`**, so pages on other sites can read it.
 - **Say where it came from**: `source` and `retrieved` on any node, and the Dataset's `attribution` for
   credit lines your sources' terms require.
+- **Publish forecasts before kick-off**, each pointing at the match in its own dataset (`fixture`), so anyone
+  can score them once it is played. Say which model made them.
 - **Give clubs `sameAs`** (their Wikidata entity) **and `altNames`**, so other datasets can be joined to
   yours without hand-made name tables.
 
@@ -266,6 +319,10 @@ change is listed below. IRIs (`urn:football:…`) never change meaning.
 
 ### Changes
 
+- **0.0.3.** The `forecast` module: `ForecastModel`, `Rating`, `MatchForecast` (`GoalLine`, `ScoreChance`),
+  `SeasonProjection` and `ForecastRules` (chances 0 to 1 that add up, issued before kick-off); `forecastScore()`
+  and `zoneChance()`. `Season.coverage` (`complete` or `partial`; a partial season is exempt from the round-robin
+  rules). `Dataset.includes`, and `Dataset.seasons` may be empty. `loadLinked` fetches several documents at once.
 - **0.0.2.** Annotations on any node: `sameAs`, `source`, `retrieved`. `Club.altNames`. `PointsDeduction`
   and `Season.deductions`, counted by `standing()` (and `Standing.deducted`). The `catalogue` module:
   `Dataset`. `loadGraph` reads over HTTP; `loadLinked` follows links from one address.

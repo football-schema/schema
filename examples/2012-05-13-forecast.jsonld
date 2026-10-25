@@ -1,0 +1,24 @@
+{
+  "@context": "../context.jsonld",
+  "@graph": [
+    {
+      "@id": "#model", "@type": "ForecastModel",
+      "comment": "An illustrative model for the examples; its numbers are made up to show the shape of the data, not published forecasts.",
+      "name": "Example Elo", "modelVersion": "2012-05", "method": "Elo ratings turned into expected goals and a Poisson score grid."
+    },
+    { "@type": "Rating", "club": "2012-05-13-mci-qpr.jsonld#MCI", "model": "#model", "value": 1985, "asOf": "2012-05-07", "rank": 1 },
+    { "@type": "Rating", "club": "2012-05-13-mci-qpr.jsonld#QPR", "model": "#model", "value": 1655, "asOf": "2012-05-07", "rank": 17 },
+    {
+      "@id": "#mci-qpr", "@type": "MatchForecast",
+      "fixture": "2012-05-13-mci-qpr.jsonld#match", "model": "#model", "issued": "2012-05-12T09:00:00Z",
+      "homeWin": 0.81, "draw": 0.13, "awayWin": 0.06,
+      "expectedHomeGoals": 2.6, "expectedAwayGoals": 0.6, "bothTeamsScore": 0.42,
+      "goalLines": [{ "@type": "GoalLine", "line": 2.5, "over": 0.63 }],
+      "scores": [
+        { "@type": "ScoreChance", "home": 2, "away": 0, "chance": 0.14 },
+        { "@type": "ScoreChance", "home": 3, "away": 0, "chance": 0.12 },
+        { "@type": "ScoreChance", "home": 2, "away": 1, "chance": 0.09 }
+      ]
+    }
+  ]
+}

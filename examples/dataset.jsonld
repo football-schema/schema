@@ -3,14 +3,15 @@
   "@graph": [
     {
       "@id": "#this", "@type": "Dataset",
-      "comment": "The one address a consumer needs: loadLinked() follows seasons on to the season document and everything it links to.",
+      "comment": "The one address a consumer needs: loadLinked() follows seasons on to the season document and everything it links to, and includes on to the forecasts and the match they are about.",
       "name": "Football Schema examples",
       "publisher": "Football Schema",
       "license": "https://creativecommons.org/publicdomain/zero/1.0/",
       "updated": "2026-10-25T00:00:00Z",
-      "schemaVersion": "0.0.2",
+      "schemaVersion": "0.0.3",
       "competitions": ["2023-24-deductions.jsonld#premier-league"],
-      "seasons": ["2023-24-deductions.jsonld#season"]
+      "seasons": ["2023-24-deductions.jsonld#season"],
+      "includes": ["2012-05-13-forecast.jsonld"]
     }
   ]
 }

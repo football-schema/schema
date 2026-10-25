@@ -5,7 +5,7 @@
       "@id": "fb:table",
       "@type": "Module",
       "label": "table",
-      "version": "0.0.2",
+      "version": "0.0.3",
       "comment": "The league table as a pure projection of finished matches. Nothing here is stored: a Standing is a club in a season, and every number in it is computed from that season's results.",
       "layer": "projection"
     },

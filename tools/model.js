@@ -9,7 +9,7 @@ import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 
 const root = new URL('..', import.meta.url);
-export const MODULES = ['core', 'match', 'table', 'premier-league', 'catalogue'];
+export const MODULES = ['core', 'match', 'table', 'premier-league', 'catalogue', 'forecast'];
 
 export async function loadSchema() {
   const nodes = [];
@@ -97,8 +97,8 @@ export async function loadDir(dir) {
 // consumer needs one address: a Dataset, or a Season. Each document is read
 // once; IRIs are followed to the document, not the fragment.
 //   const g = await loadLinked('https://example.org/data/dataset.jsonld');
-export const FOLLOW = ['seasons', 'competitions', 'matches', 'clubs', 'promoted', 'deductions', 'homeGround', 'venue', 'referee'];
-export async function loadLinked(start, { follow = FOLLOW, limit = 1000 } = {}) {
+export const FOLLOW = ['seasons', 'competitions', 'includes', 'matches', 'clubs', 'promoted', 'deductions', 'homeGround', 'venue', 'referee', 'fixture', 'club', 'season'];
+export async function loadLinked(start, { follow = FOLLOW, limit = 1000, parallel = 8 } = {}) {
   const graph = { files: [], nodes: [], byId: new Map() };
   const queue = [toUrl(start).href], seen = new Set(queue);
   const links = (n, out) => {
@@ -107,15 +107,17 @@ export async function loadLinked(start, { follow = FOLLOW, limit = 1000 } = {}) 
       else if (follow.includes(k) && typeof x === 'string') out.push(x.split('#')[0]);
     }
   };
+  // a few documents at a time, in the order they were found
   while (queue.length) {
-    if (graph.files.length >= limit) throw new Error(`loadLinked: more than ${limit} documents from ${start}`);
-    const g = await loadGraph(queue.shift());
-    graph.files.push(g);
-    graph.nodes.push(...g.nodes);
-    for (const [id, n] of g.byId) graph.byId.set(id, n);
-    const next = [];
-    g.nodes.forEach((n) => links(n, next));
-    for (const u of next) if (u && !seen.has(u)) { seen.add(u); queue.push(u); }
+    if (graph.files.length + queue.length > limit) throw new Error(`loadLinked: more than ${limit} documents from ${start}`);
+    for (const g of await Promise.all(queue.splice(0, parallel).map(loadGraph))) {
+      graph.files.push(g);
+      graph.nodes.push(...g.nodes);
+      for (const [id, n] of g.byId) graph.byId.set(id, n);
+      const next = [];
+      g.nodes.forEach((n) => links(n, next));
+      for (const u of next) if (u && !seen.has(u)) { seen.add(u); queue.push(u); }
+    }
   }
   return graph;
 }
@@ -179,3 +181,17 @@ export function classify(standings) {
     .sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference || b.goalsFor - a.goalsFor)
     .map((s, i) => ({ position: i + 1, ...s }));
 }
+
+// ---- forecast derivations (schema/forecast.jsonld) ----
+
+// a finished match's forecast, scored: log loss and ranked probability score (lower is better)
+export function forecastScore(f, m) {
+  const r = result(m);
+  if (!r) return null;
+  const p = { homeWin: f.homeWin, draw: f.draw, awayWin: f.awayWin }[r];
+  const [h, d] = [r === 'homeWin' ? 1 : 0, r === 'draw' ? 1 : 0];
+  return { logLoss: -Math.log(p), rps: ((f.homeWin - h) ** 2 + (f.homeWin + f.draw - h - d) ** 2) / 2 };
+}
+// a projection's chance of finishing in the competition's zones of one kind
+export const zoneChance = (projection, competition, kind) => (competition.zones ?? []).filter((z) => z.kind === kind)
+  .reduce((t, z) => t + projection.positions.slice(z.from - 1, z.to).reduce((a, b) => a + b, 0), 0);

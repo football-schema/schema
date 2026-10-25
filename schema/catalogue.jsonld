@@ -5,8 +5,8 @@
       "@id": "fb:catalogue",
       "@type": "Module",
       "label": "catalogue",
-      "version": "0.0.2",
-      "comment": "How published data is found. A Dataset is the one document a consumer needs to know about: it says who publishes the data, on what terms, and links to every season, from which every match and club can be reached by following links.",
+      "version": "0.0.3",
+      "comment": "How published data is found. A Dataset is the one document a consumer needs to know about: it says who publishes the data, on what terms, and links to every season (from which every match and club can be reached by following links) and to any other documents it includes, such as forecasts.",
       "layer": "catalogue"
     },
 
@@ -24,7 +24,8 @@
         { "property": "dcterms:modified", "label": "updated", "valueType": "dateTime", "comment": "When the data last changed." },
         { "property": "fb:schemaVersion", "label": "schemaVersion", "valueType": "string", "comment": "Version of the Football Schema the data conforms to, e.g. \"0.0.2\"." },
         { "property": "fb:competitions", "label": "competitions", "refType": "fb:Competition", "multiplicity": "0..*", "comment": "Competitions covered." },
-        { "property": "fb:seasons", "label": "seasons", "refType": "fb:Season", "multiplicity": "1..*", "comment": "Every season published, each linking on to its matches and clubs." }
+        { "property": "fb:seasons", "label": "seasons", "refType": "fb:Season", "multiplicity": "0..*", "comment": "Every season published, each linking on to its matches and clubs." },
+        { "property": "fb:includes", "label": "includes", "valueType": "iri", "multiplicity": "0..*", "comment": "Other documents the dataset is made of, e.g. its forecasts; loadLinked() follows them." }
       ]
     }
   ]

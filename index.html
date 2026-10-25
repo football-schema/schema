@@ -32,8 +32,10 @@
       <a href="#table">table</a>
       <a href="#premier-league">premier-league</a>
       <a href="#catalogue">catalogue</a>
+      <a href="#forecast">forecast</a>
       <a href="examples/2012-05-13-mci-qpr.jsonld">example: MCI 3–2 QPR</a>
       <a href="examples/2023-24-deductions.jsonld">example: deductions</a>
+      <a href="examples/2012-05-13-forecast.jsonld">example: forecast</a>
       <a href="examples/dataset.jsonld">example: dataset</a>
       <a href="context.jsonld">context.jsonld</a>
       <a href="docs/class-diagram.mmd">mermaid</a>
@@ -42,7 +44,7 @@
 
   <section style="margin:1.6rem 0">
     <h2 style="font-size:1.1rem;margin:0 0 .2rem">Data model</h2>
-    <p style="color:var(--muted);margin:0 0 .8rem;font-size:.92rem">The core, match, table and catalogue modules as a UML class diagram —
+    <p style="color:var(--muted);margin:0 0 .8rem;font-size:.92rem">The core, match, table, catalogue and forecast modules as a UML class diagram —
       <a href="tools/gen-class-diagram.js">generated</a> from the schema, so it never drifts.
       Filled diamonds are composition, hollow triangles generalization, open arrows association;
       <code>/name</code> fields are derived (computed, not stored). Italic, dashed boxes are abstract.</p>
@@ -59,7 +61,7 @@
   </footer>
 </div>
 <script type="module">
-  const MODULES = ['core', 'match', 'table', 'premier-league', 'catalogue'];
+  const MODULES = ['core', 'match', 'table', 'premier-league', 'catalogue', 'forecast'];
   const short = (id) => String(id).replace(/^fb:/, '');
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
   const link = (id, cls) => `<a class="${cls}" href="#${short(id)}">${short(id)}</a>`;

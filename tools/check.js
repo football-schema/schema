@@ -9,7 +9,7 @@
 
 import { readFile, readdir } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
-import { loadSchema, loadGraph, loadLinked, score, halfTimeScore, result, standing } from './model.js';
+import { loadSchema, loadGraph, loadLinked, score, halfTimeScore, result, standing, forecastScore, zoneChance } from './model.js';
 import { validate } from './validate.js';
 
 const root = new URL('..', import.meta.url);
@@ -63,6 +63,18 @@ const dg = await loadGraph(new URL('2023-24-deductions.jsonld', dir));
 const season = dg.nodes.find((n) => n['@type'] === 'Season'), eve = season.clubs[0];
 ok(standing(eve, [], undefined, { deductions: season.deductions }).points === -8, 'Everton 2023/24: two deductions, 8 points off');
 ok(standing(eve, [], undefined, { deductions: season.deductions, venue: 'home' }).points === 0, 'deductions stay out of the home table');
+
+// forecasts: scoring once the match is played, zone chances, and the rules
+const fg = await loadLinked(new URL('2012-05-13-forecast.jsonld', dir));
+const fc = fg.nodes.find((n) => n['@type'] === 'MatchForecast'), sc = forecastScore(fc, fg.byId.get(fc.fixture));
+ok(Math.abs(sc.logLoss + Math.log(0.81)) < 1e-9 && Math.abs(sc.rps - (0.19 ** 2 + 0.06 ** 2) / 2) < 1e-9, `MCI–QPR forecast scored: log loss ${sc.logLoss}, rps ${sc.rps}`);
+ok(forecastScore(fc, { ...fg.byId.get(fc.fixture), status: 'scheduled' }) === null, 'an unplayed match has no forecast score');
+const zones = { zones: [{ from: 1, to: 4, kind: 'championsLeague' }, { from: 18, to: 20, kind: 'relegation' }] };
+const proj = { positions: Array.from({ length: 20 }, (_, i) => (i < 4 ? 0.1 : i >= 17 ? 0.2 : 0)) };
+ok(Math.abs(zoneChance(proj, zones, 'championsLeague') - 0.4) < 1e-9 && Math.abs(zoneChance(proj, zones, 'relegation') - 0.6) < 1e-9, 'zone chances add up the places in each zone');
+const late = { ...fg, nodes: fg.nodes.map((n) => (n === fc ? { ...n, issued: '2012-05-13T15:00:00Z', homeWin: 0.9 } : n)) };
+const lateProblems = validate(S, late);
+ok(lateProblems.some((p) => p.includes('issued-after-kickoff')) && lateProblems.some((p) => p.includes('outcomes-dont-add-up')), 'a late forecast, and chances that do not add up, are caught');
 
 console.log(failures ? `\n${failures} failure(s)` : '\nall checks pass');
 process.exit(failures ? 1 : 0);

@@ -17,7 +17,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 
 const root = new URL('..', import.meta.url);
-const MODULES = ['core', 'match', 'table', 'catalogue'];
+const MODULES = ['core', 'match', 'table', 'catalogue', 'forecast'];
 const nodes = [];
 for (const name of MODULES) {
   const doc = JSON.parse(await readFile(new URL(`schema/${name}.jsonld`, root), 'utf8'));
@@ -99,6 +99,12 @@ const POS = {
   'fb:Goal':         { x: COL[2], y: 1350 },
   'fb:Card':         { x: COL[3], y: 1350 },
   'fb:Substitution': { x: COL[4], y: 1350 },
+  'fb:ForecastModel':  { x: COL[0], y: 1600 },
+  'fb:Rating':         { x: COL[1], y: 1600 },
+  'fb:SeasonProjection': { x: COL[2], y: 1600 },
+  'fb:MatchForecast':  { x: COL[3], y: 1600 },
+  'fb:GoalLine':       { x: COL[4], y: 1600 },
+  'fb:ScoreChance':    { x: COL[4], y: 1760 },
 };
 const WIDTH = 1470, W = 230, HEAD = 34, LINE = 23, PAD = 10, CHW = 7.6; // monospace advance at 12.5px
 const MONO = 'ui-monospace, Menlo, Consolas, monospace';
@@ -279,7 +285,7 @@ function svg() {
   ${out.join('\n  ')}
   ${boxes.join('\n  ')}
   ${legendSvg.join('\n  ')}
-  <text x="${WIDTH - 16}" y="${H - 20}" text-anchor="end" font-family="${MONO}" font-size="12" fill="${C.muted}">generated from schema/{core,match,table}.jsonld</text>
+  <text x="${WIDTH - 16}" y="${H - 20}" text-anchor="end" font-family="${MONO}" font-size="12" fill="${C.muted}">generated from schema/{${MODULES.join(',')}}.jsonld</text>
 </svg>`;
 }
 
