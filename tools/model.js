@@ -1,14 +1,15 @@
 // Load the schema and implement its derivations, so tools and tests compute
 // scores and tables exactly as schema/*.jsonld describes them. Instance data
 // is plain JSON-LD: nodes in @graph, references as relative IRIs ("#stadium",
-// "../clubs/ARS.jsonld#this") resolved against the file they appear in.
+// "../clubs/ARS.jsonld#this") resolved against the file they appear in, read
+// from disk or over HTTP.
 
 import { readFile, readdir } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 
 const root = new URL('..', import.meta.url);
-export const MODULES = ['core', 'match', 'table', 'premier-league'];
+export const MODULES = ['core', 'match', 'table', 'premier-league', 'catalogue'];
 
 export async function loadSchema() {
   const nodes = [];
@@ -21,6 +22,8 @@ export async function loadSchema() {
     .filter((n) => n['@type'] === 'EntityClass' || n['@type'] === 'AbstractClass')
     .map((n) => [n.label, n]));
   const enums = new Map(nodes.filter((n) => n['@type'] === 'Enumeration').map((n) => [n['@id'], n]));
+  // fields every node may carry, whatever its class (fb:Annotations)
+  const annotations = nodes.filter((n) => n['@type'] === 'Annotations').flatMap((n) => n.fields ?? []);
   // fields of a class including those inherited through subClassOf
   const fieldsOf = (label) => {
     const c = classes.get(label);
@@ -33,25 +36,35 @@ export async function loadSchema() {
       if (c.label === ancestor) return true;
     return false;
   };
-  return { nodes, byId, classes, enums, fieldsOf, isA };
+  return { nodes, byId, classes, enums, annotations, fieldsOf, isA };
 }
 
 // terms the context types as @id: their string values are IRIs, not literals
 const context = JSON.parse(await readFile(new URL('context.jsonld', root), 'utf8'))['@context'];
 const ID_TERMS = new Set(Object.entries(context).filter(([, v]) => v?.['@type'] === '@id').map(([k]) => k));
 
-// Load one JSON-LD file, rewriting every @id and IRI-valued property to an
-// absolute IRI. byId indexes embedded nodes (events, lineups) as well.
+// a path, a file: or http(s): IRI, or a URL -> a URL
+const toUrl = (p) => (p instanceof URL ? p : /^(https?|file):/.test(p) ? new URL(p) : pathToFileURL(resolve(p)));
+async function readDoc(url) {
+  if (url.protocol === 'file:') return JSON.parse(await readFile(url, 'utf8'));
+  const res = await fetch(url, { headers: { accept: 'application/ld+json, application/json;q=0.9' }, signal: AbortSignal.timeout(30_000) });
+  if (!res.ok) throw new Error(`${url.href}: HTTP ${res.status}`);
+  return res.json();
+}
+
+// Load one JSON-LD document, from disk or the web, rewriting every @id and
+// IRI-valued property to an absolute IRI. byId indexes embedded nodes
+// (events, lineups) as well.
 export async function loadGraph(path) {
-  const base = path instanceof URL ? path : pathToFileURL(resolve(path));
-  const doc = JSON.parse(await readFile(base, 'utf8'));
+  const base = toUrl(path);
+  const doc = await readDoc(base);
   const abs = (iri) => new URL(iri, base).href;
   const absolutize = (node) => {
     const out = { ...node };
     if (out['@id'] !== undefined) out['@id'] = abs(out['@id']);
     for (const [k, v] of Object.entries(out)) {
       if (k.startsWith('@')) continue;
-      out[k] = [].concat(v).map((x) => (typeof x === 'object' && x !== null ? absolutize(x) : ID_TERMS.has(k) ? abs(x) : x));
+      out[k] = [].concat(v).map((x) => (typeof x === 'object' && x !== null ? absolutize(x) : ID_TERMS.has(k) && typeof x === 'string' ? abs(x) : x));
       if (!Array.isArray(v)) out[k] = out[k][0];
     }
     return out;
@@ -76,6 +89,33 @@ export async function loadDir(dir) {
     graph.files.push({ file: f, ...g });
     graph.nodes.push(...g.nodes);
     for (const [id, n] of g.byId) graph.byId.set(id, n);
+  }
+  return graph;
+}
+
+// Load a document and every document it links to through `follow` terms, so a
+// consumer needs one address: a Dataset, or a Season. Each document is read
+// once; IRIs are followed to the document, not the fragment.
+//   const g = await loadLinked('https://example.org/data/dataset.jsonld');
+export const FOLLOW = ['seasons', 'competitions', 'matches', 'clubs', 'promoted', 'deductions', 'homeGround', 'venue', 'referee'];
+export async function loadLinked(start, { follow = FOLLOW, limit = 1000 } = {}) {
+  const graph = { files: [], nodes: [], byId: new Map() };
+  const queue = [toUrl(start).href], seen = new Set(queue);
+  const links = (n, out) => {
+    for (const [k, v] of Object.entries(n)) for (const x of [].concat(v)) {
+      if (typeof x === 'object' && x !== null) links(x, out);
+      else if (follow.includes(k) && typeof x === 'string') out.push(x.split('#')[0]);
+    }
+  };
+  while (queue.length) {
+    if (graph.files.length >= limit) throw new Error(`loadLinked: more than ${limit} documents from ${start}`);
+    const g = await loadGraph(queue.shift());
+    graph.files.push(g);
+    graph.nodes.push(...g.nodes);
+    for (const [id, n] of g.byId) graph.byId.set(id, n);
+    const next = [];
+    g.nodes.forEach((n) => links(n, next));
+    for (const u of next) if (u && !seen.has(u)) { seen.add(u); queue.push(u); }
   }
   return graph;
 }
@@ -108,8 +148,9 @@ export function result(m) {
 // ---- table derivations (schema/table.jsonld + premier-league rules) ----
 
 // venue 'home' or 'away' restricts to those games (the Home and Away tables);
-// last n keeps only the club's most recent n games (the Form table)
-export function standing(club, matches, rules = { pointsForWin: 3, pointsForDraw: 1 }, { venue, last } = {}) {
+// last n keeps only the club's most recent n games (the Form table);
+// deductions (fb:PointsDeduction) count in the overall table only
+export function standing(club, matches, rules = { pointsForWin: 3, pointsForDraw: 1 }, { venue, last, deductions = [] } = {}) {
   let games = matches
     .filter((m) => m.status === 'finished' && (m.homeTeam === club || m.awayTeam === club))
     .filter((m) => !venue || (venue === 'home' ? m.homeTeam === club : m.awayTeam === club))
@@ -126,7 +167,8 @@ export function standing(club, matches, rules = { pointsForWin: 3, pointsForDraw
   }
   s.form = s.form.slice(-5).join('');
   s.goalDifference = s.goalsFor - s.goalsAgainst;
-  s.points = s.won * rules.pointsForWin + s.drawn * rules.pointsForDraw;
+  s.deducted = venue || last ? 0 : deductions.filter((d) => d.club === club).reduce((t, d) => t + d.points, 0);
+  s.points = s.won * rules.pointsForWin + s.drawn * rules.pointsForDraw - s.deducted;
   return s;
 }
 

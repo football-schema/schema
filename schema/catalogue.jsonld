@@ -1,0 +1,31 @@
+{
+  "@context": "../context.jsonld",
+  "@graph": [
+    {
+      "@id": "fb:catalogue",
+      "@type": "Module",
+      "label": "catalogue",
+      "version": "0.0.2",
+      "comment": "How published data is found. A Dataset is the one document a consumer needs to know about: it says who publishes the data, on what terms, and links to every season, from which every match and club can be reached by following links.",
+      "layer": "catalogue"
+    },
+
+    {
+      "@id": "fb:Dataset",
+      "@type": "EntityClass",
+      "module": "fb:catalogue",
+      "label": "Dataset",
+      "comment": "A published collection of football data in this vocabulary, e.g. one site's seasons. Publish it at a stable address (conventionally dataset.jsonld at the data's root) and link it from the site.",
+      "fields": [
+        { "property": "fb:name", "label": "name", "valueType": "string", "comment": "What the dataset is called." },
+        { "property": "dcterms:publisher", "label": "publisher", "valueType": "string", "comment": "Who publishes it: a name, or the publisher's WebID." },
+        { "property": "dcterms:license", "label": "license", "valueType": "iri", "optional": true, "comment": "Licence of the data as a whole, e.g. https://creativecommons.org/publicdomain/zero/1.0/. Parts taken from sources keep their sources' terms." },
+        { "property": "fb:attribution", "label": "attribution", "valueType": "string[]", "optional": true, "comment": "Credit lines that the data's terms require anyone showing it to display, e.g. \"Football data provided by the Football-Data.org API\"." },
+        { "property": "dcterms:modified", "label": "updated", "valueType": "dateTime", "comment": "When the data last changed." },
+        { "property": "fb:schemaVersion", "label": "schemaVersion", "valueType": "string", "comment": "Version of the Football Schema the data conforms to, e.g. \"0.0.2\"." },
+        { "property": "fb:competitions", "label": "competitions", "refType": "fb:Competition", "multiplicity": "0..*", "comment": "Competitions covered." },
+        { "property": "fb:seasons", "label": "seasons", "refType": "fb:Season", "multiplicity": "1..*", "comment": "Every season published, each linking on to its matches and clubs." }
+      ]
+    }
+  ]
+}

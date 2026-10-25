@@ -5,11 +5,11 @@
   <path d="M568,119 L620,119" fill="none" stroke="#8c959f" stroke-width="1.4"/>
   <text x="585" y="112" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="middle">zones</text>
   <text x="616" y="135" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">0..*</text>
-  <path d="M435,365 L435,384 L435,384 L435,420" fill="none" stroke="#8c959f" stroke-width="1.4"/>
+  <path d="M435,365 L435,384 L396.6666666666667,384 L396.6666666666667,420" fill="none" stroke="#8c959f" stroke-width="1.4"/>
   <path d="M435,347 l7,9 l-7,9 l-7,-9 z" fill="#1f2328"/>
   <text x="445" y="361" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1</text>
-  <text x="443" y="414" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1..*</text>
-  <text x="427" y="406" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">seasons</text>
+  <text x="404.6666666666667" y="414" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1..*</text>
+  <text x="388.6666666666667" y="406" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">seasons</text>
   <path d="M320,533 L250,533" fill="none" stroke="#8c959f" stroke-width="1.4"/>
   <path d="M259,528 L250,533 L259,538" fill="none" stroke="#8c959f" stroke-width="1.4"/>
   <text x="285" y="526" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="middle">clubs</text>
@@ -19,6 +19,11 @@
   <text x="445" y="626" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1</text>
   <text x="443" y="704" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">0..*</text>
   <text x="427" y="690" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">matches</text>
+  <path d="M473.33333333333337,402 L473.33333333333337,393 L735,393 L735,366" fill="none" stroke="#8c959f" stroke-width="1.4"/>
+  <path d="M473.33333333333337,420 l7,-9 l-7,-9 l-7,9 z" fill="#1f2328"/>
+  <text x="483.33333333333337" y="410" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1</text>
+  <text x="743" y="376" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">0..*</text>
+  <text x="604.1666666666667" y="387" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="middle">deductions</text>
   <path d="M550,533 L620,533" fill="none" stroke="#8250df" stroke-width="1.4" stroke-dasharray="6 4"/>
   <path d="M611,528 L620,533 L611,538" fill="none" stroke="#8250df" stroke-width="1.4"/>
   <text x="585" y="526" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="middle">/table</text>
@@ -27,11 +32,11 @@
   <path d="M130,218 L135,209 L140,218" fill="none" stroke="#8c959f" stroke-width="1.4"/>
   <text x="143" y="219" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1</text>
   <text x="127" y="266" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">homeGround</text>
-  <path d="M135,653 L135,673 L135,673 L135,710" fill="none" stroke="#8c959f" stroke-width="1.4"/>
-  <path d="M135,635 l7,9 l-7,9 l-7,-9 z" fill="#1f2328"/>
-  <text x="145" y="649" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1</text>
+  <path d="M135,676 L135,684 L135,684 L135,710" fill="none" stroke="#8c959f" stroke-width="1.4"/>
+  <path d="M135,658 l7,9 l-7,9 l-7,-9 z" fill="#1f2328"/>
+  <text x="145" y="672" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">1</text>
   <text x="143" y="704" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="start">0..*</text>
-  <text x="127" y="696" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">squad</text>
+  <text x="127" y="701" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11.5" fill="#57606a" text-anchor="end">squad</text>
   <path d="M735,710 L735,657 L1035,657 L1035,603" fill="none" stroke="#8c959f" stroke-width="1.4"/>
   <path d="M1035,589 l8,14 l-16,0 z" fill="#ffffff" stroke="#8c959f" stroke-width="1.4"/>
   <path d="M1035,710 L1035,657 L1035,657 L1035,603" fill="none" stroke="#8c959f" stroke-width="1.4"/>
@@ -98,7 +103,16 @@
     <text x="334" y="594" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" font-style="italic" fill="#8250df">/champion</text>
   </g>
   <g>
-    <rect x="20" y="420" width="230" height="215" rx="10" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+    <rect x="620" y="220" width="230" height="146" rx="10" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+    <line x1="620" y1="254" x2="850" y2="254" stroke="#d0d7de"/>
+    <text x="735" y="243" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#1f2328" text-anchor="middle">PointsDeduction</text>
+    <text x="634" y="279" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">club<tspan fill="#0969da">: Club</tspan></text>
+    <text x="634" y="302" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">points<tspan fill="#c4004b">: int</tspan></text>
+    <text x="634" y="325" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">date<tspan fill="#c4004b">: date?</tspan></text>
+    <text x="634" y="348" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">reason<tspan fill="#c4004b">: string?</tspan></text>
+  </g>
+  <g>
+    <rect x="20" y="420" width="230" height="238" rx="10" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
     <line x1="20" y1="454" x2="250" y2="454" stroke="#d0d7de"/>
     <text x="135" y="443" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#1f2328" text-anchor="middle">Club</text>
     <text x="34" y="479" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">name<tspan fill="#c4004b">: string</tspan></text>
@@ -106,8 +120,9 @@
     <text x="34" y="525" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">tla<tspan fill="#c4004b">: code</tspan></text>
     <text x="34" y="548" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">founded<tspan fill="#c4004b">: gYear</tspan></text>
     <text x="34" y="571" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">nickname<tspan fill="#c4004b">: string?</tspan></text>
-    <text x="34" y="594" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">colours<tspan fill="#c4004b">: hexColour[]?</tspan></text>
-    <text x="34" y="617" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">kitPattern<tspan fill="#1a7f37">: KitPattern?</tspan></text>
+    <text x="34" y="594" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">altNames<tspan fill="#c4004b">: string[]?</tspan></text>
+    <text x="34" y="617" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">colours<tspan fill="#c4004b">: hexColour[]?</tspan></text>
+    <text x="34" y="640" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">kitPattern<tspan fill="#1a7f37">: KitPattern?</tspan></text>
   </g>
   <g>
     <rect x="20" y="710" width="230" height="146" rx="10" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
@@ -249,7 +264,20 @@
     <text x="634" y="525" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" font-style="italic" fill="#8250df">/played /won /drawn /lost</text>
     <text x="634" y="548" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" font-style="italic" fill="#8250df">/goalsFor /goalsAgainst</text>
     <text x="634" y="571" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" font-style="italic" fill="#8250df">/goalDifference /points</text>
-    <text x="634" y="594" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" font-style="italic" fill="#8250df">/position /form</text>
+    <text x="634" y="594" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" font-style="italic" fill="#8250df">/deducted /position /form</text>
+  </g>
+  <g>
+    <rect x="920" y="40" width="230" height="238" rx="10" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+    <line x1="920" y1="74" x2="1150" y2="74" stroke="#d0d7de"/>
+    <text x="1035" y="63" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#1f2328" text-anchor="middle">Dataset</text>
+    <text x="934" y="99" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">name<tspan fill="#c4004b">: string</tspan></text>
+    <text x="934" y="122" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">publisher<tspan fill="#c4004b">: string</tspan></text>
+    <text x="934" y="145" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">license<tspan fill="#c4004b">: iri?</tspan></text>
+    <text x="934" y="168" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">attribution<tspan fill="#c4004b">: string[]?</tspan></text>
+    <text x="934" y="191" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">updated<tspan fill="#c4004b">: dateTime</tspan></text>
+    <text x="934" y="214" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">schemaVersion<tspan fill="#c4004b">: string</tspan></text>
+    <text x="934" y="237" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">competitions<tspan fill="#0969da">: Competition[]?</tspan></text>
+    <text x="934" y="260" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">seasons<tspan fill="#0969da">: Season[]</tspan></text>
   </g>
   <text x="20" y="1546" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#1f2328">◆</text><text x="33.4" y="1546" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#57606a">composition</text>
   <text x="142.8" y="1546" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#8c959f">△</text><text x="156.20000000000002" y="1546" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#57606a">generalization</text>

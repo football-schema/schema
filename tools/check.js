@@ -2,14 +2,14 @@
 // Self-checks for the schema, zero dependencies:
 //   1. the schema is closed: every type it names resolves, every field is documented
 //   2. class-diagram.svg and docs/class-diagram.mmd match the schema
-//   3. the examples conform to the schema and its rules
+//   3. the examples, each with the documents it links to, conform to the schema and its rules
 //   4. derived values for the reference match are what history recorded
 //
 //   node tools/check.js
 
 import { readFile, readdir } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
-import { loadSchema, loadGraph, score, halfTimeScore, result } from './model.js';
+import { loadSchema, loadGraph, loadLinked, score, halfTimeScore, result, standing } from './model.js';
 import { validate } from './validate.js';
 
 const root = new URL('..', import.meta.url);
@@ -44,9 +44,9 @@ ok((await read()).every((x, i) => x === before[i]), 'diagram was stale (now rege
 console.log('examples');
 const dir = new URL('examples/', root);
 for (const file of (await readdir(dir)).filter((f) => f.endsWith('.jsonld'))) {
-  const g = await loadGraph(new URL(file, dir));
+  const g = await loadLinked(new URL(file, dir));
   for (const p of validate(S, g, { rel: (iri) => iri.replace(root.href, '') })) ok(false, p);
-  console.log(`  ${file}: ${g.nodes.length} nodes`);
+  console.log(`  ${file}: ${g.nodes.length} nodes in ${g.files.length} document${g.files.length > 1 ? 's' : ''}`);
 }
 
 // 4 ---------------------------------------------------------------------
@@ -59,6 +59,10 @@ ok(ht.home === 1 && ht.away === 0, `MCI–QPR /halfTimeScore = ${ht.home}–${ht
 ok(result(m) === 'homeWin', `MCI–QPR /result = ${result(m)}, expected homeWin`);
 ok(score({ ...m, events: [{ '@type': 'Goal', club: m.awayTeam, kind: 'ownGoal' }] }).home === 1, 'own goal is credited to the opponent');
 ok(score({ homeTeam: 'h', awayTeam: 'a', fullTime: { home: 2, away: 1 } }).home === 2, 'reported score stands in without an event log');
+const dg = await loadGraph(new URL('2023-24-deductions.jsonld', dir));
+const season = dg.nodes.find((n) => n['@type'] === 'Season'), eve = season.clubs[0];
+ok(standing(eve, [], undefined, { deductions: season.deductions }).points === -8, 'Everton 2023/24: two deductions, 8 points off');
+ok(standing(eve, [], undefined, { deductions: season.deductions, venue: 'home' }).points === 0, 'deductions stay out of the home table');
 
 console.log(failures ? `\n${failures} failure(s)` : '\nall checks pass');
 process.exit(failures ? 1 : 0);

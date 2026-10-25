@@ -5,7 +5,7 @@
       "@id": "fb:premier-league",
       "@type": "Module",
       "label": "premier-league",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "comment": "The rules that give Premier League tables and team sheets meaning. The competition itself, its seasons and its clubs are data, in data/competitions/premier-league.jsonld; other leagues reuse core, match and table and supply their own rules module like this one.",
       "layer": "competition"
     },

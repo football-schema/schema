@@ -5,7 +5,7 @@
       "@id": "fb:table",
       "@type": "Module",
       "label": "table",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "comment": "The league table as a pure projection of finished matches. Nothing here is stored: a Standing is a club in a season, and every number in it is computed from that season's results.",
       "layer": "projection"
     },
@@ -28,7 +28,8 @@
         { "property": "fb:goalsFor", "label": "goalsFor", "derivation": "sum(games.map(goalsFor))", "comment": "Goals scored." },
         { "property": "fb:goalsAgainst", "label": "goalsAgainst", "derivation": "sum(games.map(goalsAgainst))", "comment": "Goals conceded." },
         { "property": "fb:goalDifference", "label": "goalDifference", "derivation": "goalsFor - goalsAgainst", "comment": "Goal difference." },
-        { "property": "fb:points", "label": "points", "derivation": "won * rules.pointsForWin + drawn * rules.pointsForDraw - deductions", "comment": "League points, after any deductions imposed by the competition." },
+        { "property": "fb:points", "label": "points", "derivation": "won * rules.pointsForWin + drawn * rules.pointsForDraw - deducted", "comment": "League points, after any deductions imposed by the competition. The home, away and form tables leave deductions out." },
+        { "property": "fb:deducted", "label": "deducted", "derivation": "sum(season.deductions.filter(d => d.club == club).map(d => d.points))", "comment": "Points taken off this season (fb:PointsDeduction)." },
         { "property": "fb:position", "label": "position", "derivation": "1 + season.table.indexOf(this)", "comment": "Place in the table after applying the tie-break rules." },
         { "property": "fb:form", "label": "form", "derivation": "games.slice(-5).map(m => 'W' | 'D' | 'L')", "comment": "Results of the last five matches, oldest first." }
       ]

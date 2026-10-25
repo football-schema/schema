@@ -14,10 +14,11 @@ implemented once in [`tools/model.js`](tools/model.js).
 
 | module | layer | contents |
 |---|---|---|
-| [`core`](schema/core.jsonld) | domain | Competition (with TableZones), Season, Club, Registration, Stadium, Person → Player / Manager / Referee |
+| [`core`](schema/core.jsonld) | domain | Competition (with TableZones), Season (with PointsDeductions), Club, Registration, Stadium, Person → Player / Manager / Referee; Annotations allowed on any node (`sameAs`, `source`, `retrieved`) |
 | [`match`](schema/match.jsonld) | event | Match, Score, Lineup, Appearance, MatchEvent → Goal / Card / Substitution; status, period, goal and card enums |
 | [`table`](schema/table.jsonld) | projection | Standing: every column derived from finished matches |
 | [`premier-league`](schema/premier-league.jsonld) | competition | Premier League rules: tie-break order, match, squad and season rules |
+| [`catalogue`](schema/catalogue.jsonld) | catalogue | Dataset: who publishes the data, on what terms, and a link to every season |
 
 Another league reuses `core`, `match` and `table` and adds its own rules module.
 
@@ -50,12 +51,19 @@ classDiagram
     +date? resultsAsOf
     +champion() derived
   }
+  class PointsDeduction {
+    +Club club
+    +int points
+    +date? date
+    +string? reason
+  }
   class Club {
     +string name
     +string shortName
     +code tla
     +gYear founded
     +string? nickname
+    +string[]? altNames
     +hexColour[]? colours
     +KitPattern? kitPattern
   }
@@ -160,13 +168,25 @@ classDiagram
     +goalsAgainst() derived
     +goalDifference() derived
     +points() derived
+    +deducted() derived
     +position() derived
     +form() derived
+  }
+  class Dataset {
+    +string name
+    +string publisher
+    +iri? license
+    +string[]? attribution
+    +dateTime updated
+    +string schemaVersion
+    +Competition[]? competitions
+    +Season[] seasons
   }
   Competition "1" *-- "0..*" TableZone : zones
   Competition "1" *-- "1..*" Season : seasons
   Season --> "2..*" Club : clubs
   Season "1" *-- "0..*" Match : matches
+  Season "1" *-- "0..*" PointsDeduction : deductions
   Season ..> "0..*" Standing : /table
   Club --> "1" Stadium : homeGround
   Club "1" *-- "0..*" Registration : squad
@@ -193,20 +213,63 @@ Data in this vocabulary is JSON-LD with this repo's [`context.jsonld`](context.j
   "@graph": [ { "@id": "#this", "@type": "Club", "name": "Arsenal Football Club", "tla": "ARS", … } ] }
 ```
 
-The package exports a loader, the derivations and a validator:
+The package exports loaders, the derivations and a validator:
 
 ```js
-import { loadSchema, loadDir, score, standing, classify } from 'football-schema/model.js';
+import { loadSchema, loadDir, loadLinked, score, standing, classify } from 'football-schema/model.js';
 import { validate } from 'football-schema/validate.js';
 
+// from disk: every file under a directory
 const problems = validate(await loadSchema(), await loadDir('data/'));   // [] when valid
+
+// from the web: one address, every linked document (seasons -> matches -> clubs -> stadiums)
+const g = await loadLinked('https://melvin.me/public/matchday/data/seasons/2026-27.jsonld');
+const season = g.nodes.find((n) => n['@type'] === 'Season');
+const matches = g.nodes.filter((n) => n['@type'] === 'Match');
+const table = classify(season.clubs.map((c) => standing(c, matches, undefined, { deductions: season.deductions })));
 ```
 
 `validate` checks every node against its class, that references resolve to the right types, and the
 Premier League's match and season rules (for example a complete double round-robin).
 
-[`examples/2012-05-13-mci-qpr.jsonld`](examples/2012-05-13-mci-qpr.jsonld) is a worked example:
-Manchester City 3–2 QPR, recorded as events only; `npm run derive` computes its score and table.
+Worked examples: [`2012-05-13-mci-qpr.jsonld`](examples/2012-05-13-mci-qpr.jsonld), Manchester City 3–2
+QPR recorded as events only (`npm run derive` computes its score and table);
+[`2023-24-deductions.jsonld`](examples/2023-24-deductions.jsonld), Everton's and Forest's points deductions
+with their source and Wikidata identities; and [`dataset.jsonld`](examples/dataset.jsonld), a Dataset that
+links to it.
+
+## Publishing data
+
+So that anyone can build on what you publish:
+
+- **Publish a [Dataset](schema/catalogue.jsonld)** at a stable address, conventionally `dataset.jsonld` at the
+  data's root, linking every season. A consumer then needs that one address: `loadLinked` follows the links.
+- **Keep addresses stable.** Consumers link to your IRIs; move a file and you break them. One document per
+  season, per matchweek and per club works well (`seasons/2026-27.jsonld`, `matches/2026-27/mw08.jsonld`,
+  `clubs/ARS.jsonld#this`).
+- **Use relative IRIs between your files**, so the whole tree can be copied to another host unchanged.
+- **Serve `application/ld+json` with `Access-Control-Allow-Origin: *`**, so pages on other sites can read it.
+- **Say where it came from**: `source` and `retrieved` on any node, and the Dataset's `attribution` for
+  credit lines your sources' terms require.
+- **Give clubs `sameAs`** (their Wikidata entity) **and `altNames`**, so other datasets can be joined to
+  yours without hand-made name tables.
+
+Built on it: [matchday](https://melvin.me/public/matchday/), a Premier League scores site, and
+[premelo](https://football-schema.github.io/premelo/), Elo ratings and predictions for twenty European leagues.
+
+## Versioning
+
+The schema and the package share one version (`schemaVersion` in a Dataset says which one data conforms
+to). Until 1.0: a new version may add classes, fields and enumeration members, all optional, so data that was
+valid stays valid; anything removed or renamed is first marked deprecated for at least one version, and the
+change is listed below. IRIs (`urn:football:…`) never change meaning.
+
+### Changes
+
+- **0.0.2.** Annotations on any node: `sameAs`, `source`, `retrieved`. `Club.altNames`. `PointsDeduction`
+  and `Season.deductions`, counted by `standing()` (and `Standing.deducted`). The `catalogue` module:
+  `Dataset`. `loadGraph` reads over HTTP; `loadLinked` follows links from one address.
+- **0.0.1.** First release: core, match, table and premier-league.
 
 ## Tools
 
@@ -220,4 +283,3 @@ Zero dependencies; Node 20+. `index.html` is the schema reference, rendered from
 Terms are named in the `urn:football:` namespace (so `Match` is `urn:football:Match`); the context and
 this reference are published at <https://football-schema.github.io/schema/>.
 
-Built on it: **matchday**, a Premier League scores site (a separate project).

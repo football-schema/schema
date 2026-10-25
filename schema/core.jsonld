@@ -5,9 +5,22 @@
       "@id": "fb:core",
       "@type": "Module",
       "label": "core",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "comment": "The long-lived entities of football: competitions, seasons, clubs, grounds and people. A Competition is composed of Seasons; Clubs, Stadiums and People exist independently and are referenced, never owned.",
       "layer": "domain"
+    },
+
+    {
+      "@id": "fb:Annotations",
+      "@type": "Annotations",
+      "module": "fb:core",
+      "label": "Annotations",
+      "comment": "Fields any node may carry, whatever its class: how it is known elsewhere, and where its values came from. With rdfs label, comment and seeAlso, which are always allowed.",
+      "fields": [
+        { "property": "owl:sameAs", "label": "sameAs", "valueType": "iri", "multiplicity": "0..*", "comment": "The same thing in other datasets, so they can be joined: a Wikidata entity (http://www.wikidata.org/entity/Q50602), another publisher's IRI." },
+        { "property": "dcterms:source", "label": "source", "valueType": "iri", "multiplicity": "0..*", "comment": "Where the values in this node were taken from: a feed, a page, a file." },
+        { "property": "fb:retrieved", "label": "retrieved", "valueType": "dateTime", "optional": true, "comment": "When the values were taken from source." }
+      ]
     },
 
     {
@@ -48,11 +61,26 @@
         { "property": "fb:clubs", "label": "clubs", "refType": "fb:Club", "multiplicity": "2..*", "comment": "Clubs entered in this season (20 in the Premier League)." },
         { "property": "fb:promoted", "label": "promoted", "refType": "fb:Club", "multiplicity": "0..*", "comment": "Clubs that joined from the division below for this season." },
         { "property": "fb:matches", "label": "matches", "partType": "fb:Match", "multiplicity": "0..*", "comment": "All fixtures of the season, played or not. Embedded, or linked by IRI to matchweek files." },
-        { "property": "fb:resultsAsOf", "label": "resultsAsOf", "valueType": "date", "optional": true, "comment": "Date of the latest result included; later fixtures may have been played without their results being recorded yet." }
+        { "property": "fb:resultsAsOf", "label": "resultsAsOf", "valueType": "date", "optional": true, "comment": "Date of the latest result included; later fixtures may have been played without their results being recorded yet." },
+        { "property": "fb:deductions", "label": "deductions", "partType": "fb:PointsDeduction", "multiplicity": "0..*", "comment": "Points taken off clubs this season by the competition. Embedded, or linked by IRI." }
       ],
       "derived": [
         { "property": "fb:table", "label": "table", "itemType": "fb:Standing", "derivation": "classify(clubs.map(c => standing(c, matches)), rules)", "comment": "League table: one Standing per club, ordered by the competition's tie-break rules." },
         { "property": "fb:champion", "label": "champion", "derivation": "matches.every(m => m.status == 'finished') ? table[0].club : null", "comment": "Winner, once every fixture is complete." }
+      ]
+    },
+
+    {
+      "@id": "fb:PointsDeduction",
+      "@type": "EntityClass",
+      "module": "fb:core",
+      "label": "PointsDeduction",
+      "comment": "League points taken off a club for a season by the competition, e.g. for breaking financial rules. A reduction on appeal changes points; a further sanction is another deduction.",
+      "fields": [
+        { "property": "fb:club", "label": "club", "refType": "fb:Club", "multiplicity": "1", "comment": "The club penalised." },
+        { "property": "fb:points", "label": "points", "valueType": "int", "comment": "Points taken off, as a positive number." },
+        { "property": "fb:date", "label": "date", "valueType": "date", "optional": true, "comment": "Date of the decision in force." },
+        { "property": "fb:reason", "label": "reason", "valueType": "string", "optional": true, "comment": "Why, in a sentence." }
       ]
     },
 
@@ -68,6 +96,7 @@
         { "property": "fb:tla", "label": "tla", "valueType": "code", "comment": "Three-letter abbreviation used in scorelines and graphics, e.g. MCI." },
         { "property": "fb:founded", "label": "founded", "valueType": "gYear", "comment": "Year of foundation." },
         { "property": "fb:nickname", "label": "nickname", "valueType": "string", "optional": true, "comment": "Traditional nickname, e.g. \"The Gunners\"." },
+        { "property": "fb:altNames", "label": "altNames", "valueType": "string[]", "optional": true, "comment": "Other names the club appears under in fixtures and feeds, e.g. \"Nott'm Forest\", \"Nottingham Forest FC\", so sources can be matched." },
         { "property": "fb:colours", "label": "colours", "valueType": "hexColour[]", "optional": true, "comment": "Club colours as #rrggbb, most prominent first (normally the home shirt)." },
         { "property": "fb:kitPattern", "label": "kitPattern", "enumType": "fb:KitPattern", "optional": true, "comment": "Traditional pattern of the home shirt, used with colours to draw the club's shield." },
         { "property": "fb:homeGround", "label": "homeGround", "refType": "fb:Stadium", "multiplicity": "1", "comment": "The stadium where the club plays its home matches." },

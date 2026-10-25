@@ -5,7 +5,7 @@
       "@id": "fb:match",
       "@type": "Module",
       "label": "match",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "comment": "A single fixture and everything that happens in it. Ideally only events are recorded and the score, the result and each player's minutes are derived from them. Where a source reports only the score, it is recorded as fullTime/halfTime; when both exist, rule scoreMatchesEvents makes them agree.",
       "layer": "event"
     },

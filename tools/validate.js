@@ -20,7 +20,7 @@ export function validate(S, g, { rel = (iri) => iri } = {}) {
     const type = node['@type'];
     if (!ok(S.classes.has(type), `${where}: unknown @type ${type}`)) return;
     ok(S.classes.get(type)['@type'] !== 'AbstractClass', `${where}: ${type} is abstract`);
-    const fields = new Map(S.fieldsOf(type).map((f) => [f.label, f]));
+    const fields = new Map([...S.annotations, ...S.fieldsOf(type)].map((f) => [f.label, f]));
     for (const [k, v] of Object.entries(node)) {
       if (META.has(k)) continue;
       const f = fields.get(k);
@@ -39,6 +39,8 @@ export function validate(S, g, { rel = (iri) => iri } = {}) {
         ok(S.isA(node_['@type'], S.byId.get(f.partType).label), `${where}.${k}[${i}]: expected ${f.partType}`);
       });
       if (f.valueType === 'int') ok(Number.isInteger(v), `${where}.${k}: expected int`);
+      if (f.valueType === 'iri') ok([].concat(v).every((x) => typeof x === 'string' && URL.canParse(x)), `${where}.${k}: expected IRIs`);
+      if (f.valueType === 'string[]') ok([].concat(v).every((x) => typeof x === 'string'), `${where}.${k}: expected strings`);
       if (f.valueType === 'hexColour[]') ok([].concat(v).every((c) => /^#[0-9a-f]{6}$/i.test(c)), `${where}.${k}: expected #rrggbb colours`);
     }
   }
@@ -66,6 +68,10 @@ export function validate(S, g, { rel = (iri) => iri } = {}) {
       if (comp.clubsPerSeason) ok(season.clubs.length === comp.clubsPerSeason, `${where}: ${season.clubs.length} clubs, ${comp.name} has ${comp.clubsPerSeason}`);
       const tlas = season.clubs.map((c) => g.byId.get(c)?.tla);
       ok(new Set(tlas).size === tlas.length, `${where}: duplicate club tla`);
+      for (const d of [].concat(season.deductions ?? []).map((x) => (typeof x === 'string' ? g.byId.get(x) : x)).filter(Boolean)) {
+        ok(season.clubs.includes(d.club), `${where}: deduction for ${rel(d.club)}, which is not in the season`);
+        ok(Number.isInteger(d.points) && d.points > 0, `${where}: a deduction must take off a positive whole number of points`);
+      }
       const matches = (season.matches ?? []).map((id) => g.byId.get(id));
       if (!ok(matches.every(Boolean), `${where}: a linked match does not resolve`) || !matches.length) continue;
       const n = season.clubs.length;

@@ -1,0 +1,30 @@
+{
+  "@context": "../context.jsonld",
+  "@graph": [
+    { "@id": "#premier-league", "@type": "Competition", "name": "Premier League", "country": "GB-ENG", "format": "league", "tier": 1, "founded": "1992",
+      "pointsForWin": 3, "pointsForDraw": 1, "seasons": ["#season"], "sameAs": ["http://www.wikidata.org/entity/Q9448"] },
+
+    { "@id": "#goodison", "@type": "Stadium", "name": "Goodison Park", "city": "Liverpool" },
+    { "@id": "#city-ground", "@type": "Stadium", "name": "City Ground", "city": "Nottingham" },
+
+    { "@id": "#EVE", "@type": "Club", "name": "Everton Football Club", "shortName": "Everton", "tla": "EVE", "founded": "1878", "homeGround": "#goodison",
+      "sameAs": ["http://www.wikidata.org/entity/Q5794"] },
+    { "@id": "#NFO", "@type": "Club", "name": "Nottingham Forest Football Club", "shortName": "Nott'm Forest", "tla": "NFO", "founded": "1865", "homeGround": "#city-ground",
+      "altNames": ["Nottingham Forest", "Nottingham Forest FC", "Nott'm Forest", "Forest"],
+      "sameAs": ["http://www.wikidata.org/entity/Q19490"] },
+
+    {
+      "@id": "#season", "@type": "Season",
+      "comment": "Premier League 2023/24, cut down to the two clubs that had points taken off; the other 18 clubs and the fixtures are omitted. Everton's 10-point deduction of November 2023 was reduced to 6 on appeal, and a second sanction took 2 more: two deductions, 8 points in all.",
+      "label": "2023/24", "startDate": "2023-08-11", "endDate": "2024-05-19",
+      "clubs": ["#EVE", "#NFO"],
+      "source": ["https://en.wikipedia.org/wiki/2023%E2%80%9324_Premier_League"],
+      "retrieved": "2026-10-25T00:00:00Z",
+      "deductions": [
+        { "@type": "PointsDeduction", "club": "#EVE", "points": 6, "date": "2024-02-26", "reason": "Breach of profit and sustainability rules to 2021-22; 10 points in November 2023, reduced to 6 on appeal." },
+        { "@type": "PointsDeduction", "club": "#EVE", "points": 2, "date": "2024-04-08", "reason": "Breach of profit and sustainability rules to 2022-23." },
+        { "@type": "PointsDeduction", "club": "#NFO", "points": 4, "date": "2024-03-18", "reason": "Breach of profit and sustainability rules to 2022-23." }
+      ]
+    }
+  ]
+}

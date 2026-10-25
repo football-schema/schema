@@ -21,12 +21,19 @@ classDiagram
     +date? resultsAsOf
     +champion() derived
   }
+  class PointsDeduction {
+    +Club club
+    +int points
+    +date? date
+    +string? reason
+  }
   class Club {
     +string name
     +string shortName
     +code tla
     +gYear founded
     +string? nickname
+    +string[]? altNames
     +hexColour[]? colours
     +KitPattern? kitPattern
   }
@@ -131,13 +138,25 @@ classDiagram
     +goalsAgainst() derived
     +goalDifference() derived
     +points() derived
+    +deducted() derived
     +position() derived
     +form() derived
+  }
+  class Dataset {
+    +string name
+    +string publisher
+    +iri? license
+    +string[]? attribution
+    +dateTime updated
+    +string schemaVersion
+    +Competition[]? competitions
+    +Season[] seasons
   }
   Competition "1" *-- "0..*" TableZone : zones
   Competition "1" *-- "1..*" Season : seasons
   Season --> "2..*" Club : clubs
   Season "1" *-- "0..*" Match : matches
+  Season "1" *-- "0..*" PointsDeduction : deductions
   Season ..> "0..*" Standing : /table
   Club --> "1" Stadium : homeGround
   Club "1" *-- "0..*" Registration : squad

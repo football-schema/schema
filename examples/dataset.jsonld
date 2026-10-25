@@ -1,0 +1,16 @@
+{
+  "@context": "../context.jsonld",
+  "@graph": [
+    {
+      "@id": "#this", "@type": "Dataset",
+      "comment": "The one address a consumer needs: loadLinked() follows seasons on to the season document and everything it links to.",
+      "name": "Football Schema examples",
+      "publisher": "Football Schema",
+      "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "updated": "2026-10-25T00:00:00Z",
+      "schemaVersion": "0.0.2",
+      "competitions": ["2023-24-deductions.jsonld#premier-league"],
+      "seasons": ["2023-24-deductions.jsonld#season"]
+    }
+  ]
+}

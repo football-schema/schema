@@ -1,6 +1,6 @@
 {
   "name": "football-schema",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A canonical, machine-readable model of association football in JSON-LD: competitions, seasons, clubs, matches and league tables, with the Premier League as the reference competition.",
   "type": "module",
   "license": "MIT",

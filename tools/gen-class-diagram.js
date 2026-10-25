@@ -17,7 +17,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 
 const root = new URL('..', import.meta.url);
-const MODULES = ['core', 'match', 'table'];
+const MODULES = ['core', 'match', 'table', 'catalogue'];
 const nodes = [];
 for (const name of MODULES) {
   const doc = JSON.parse(await readFile(new URL(`schema/${name}.jsonld`, root), 'utf8'));
@@ -81,6 +81,8 @@ const POS = {
   'fb:Stadium':      { x: COL[0], y: 40 },
   'fb:TableZone':    { x: COL[2], y: 40 },
   'fb:Competition':  { x: COL[1], y: 40 },
+  'fb:PointsDeduction': { x: COL[2], y: 220 },
+  'fb:Dataset':      { x: COL[3], y: 40 },
   'fb:Club':         { x: COL[0], y: 420 },
   'fb:Season':       { x: COL[1], y: 420 },
   'fb:Standing':     { x: COL[2], y: 420 },
