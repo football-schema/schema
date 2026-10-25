@@ -228,6 +228,7 @@ classDiagram
     +decimal[] positions
     +string? scenario
     +championChance() derived
+    +notFinishing() derived
     +zoneChance() derived
   }
   Competition "1" *-- "0..*" TableZone : zones
@@ -320,8 +321,8 @@ change is listed below. IRIs (`urn:football:…`) never change meaning.
 ### Changes
 
 - **0.0.3.** The `forecast` module: `ForecastModel`, `Rating`, `MatchForecast` (`GoalLine`, `ScoreChance`),
-  `SeasonProjection` and `ForecastRules` (chances 0 to 1 that add up, issued before kick-off); `forecastScore()`
-  and `zoneChance()`. `Season.coverage` (`complete` or `partial`; a partial season is exempt from the round-robin
+  `SeasonProjection` and `ForecastRules` (chances 0 to 1 that add up, issued before kick-off); `forecastScore()`,
+  `zoneChance()` and `notFinishing()` (a projection's places may add up to less than 1, e.g. under an expulsion scenario). `Season.coverage` (`complete` or `partial`; a partial season is exempt from the round-robin
   rules). `Dataset.includes`, and `Dataset.seasons` may be empty. `loadLinked` fetches several documents at once.
 - **0.0.2.** Annotations on any node: `sameAs`, `source`, `retrieved`. `Club.altNames`. `PointsDeduction`
   and `Season.deductions`, counted by `standing()` (and `Standing.deducted`). The `catalogue` module:

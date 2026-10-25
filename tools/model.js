@@ -195,3 +195,5 @@ export function forecastScore(f, m) {
 // a projection's chance of finishing in the competition's zones of one kind
 export const zoneChance = (projection, competition, kind) => (competition.zones ?? []).filter((z) => z.kind === kind)
   .reduce((t, z) => t + projection.positions.slice(z.from - 1, z.to).reduce((a, b) => a + b, 0), 0);
+// the chance a club doesn't finish in the table at all (the positions add up to less than 1)
+export const notFinishing = (projection) => Math.max(0, 1 - projection.positions.reduce((a, b) => a + b, 0));

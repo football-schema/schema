@@ -103,7 +103,7 @@ export function validate(S, g, { rel = (iri) => iri } = {}) {
   for (const p of g.nodes.filter((n) => n['@type'] === 'SeasonProjection')) {
     const where = rel(p['@id'] ?? p.club), season = g.byId.get(p.season), pos = [].concat(p.positions ?? []);
     ok(pos.every(chance), `${where}: bad-chance`);
-    ok(Math.abs(pos.reduce((a, b) => a + b, 0) - 1) <= 0.01 && (!season || pos.length === season.clubs.length), `${where}: positions-dont-add-up (${pos.length} places)`);
+    ok(pos.reduce((a, b) => a + b, 0) <= 1.01 && (!season || pos.length === season.clubs.length), `${where}: positions-dont-add-up (${pos.length} places)`);
   }
   return Object.assign(problems, { seasons });
 }

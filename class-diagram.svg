@@ -349,7 +349,7 @@
     <text x="634" y="1774" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">positions<tspan fill="#c4004b">: decimal[]</tspan></text>
     <text x="634" y="1797" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" fill="#1f2328">scenario<tspan fill="#c4004b">: string?</tspan></text>
     <text x="634" y="1820" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" font-style="italic" fill="#8250df">/championChance</text>
-    <text x="634" y="1843" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" font-style="italic" fill="#8250df">/zoneChance</text>
+    <text x="634" y="1843" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12.5" font-style="italic" fill="#8250df">/notFinishing /zoneChance</text>
   </g>
   <text x="20" y="1934" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#1f2328">◆</text><text x="33.4" y="1934" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#57606a">composition</text>
   <text x="142.8" y="1934" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#8c959f">△</text><text x="156.20000000000002" y="1934" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#57606a">generalization</text>

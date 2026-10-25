@@ -100,11 +100,12 @@
         { "property": "fb:model", "label": "model", "refType": "fb:ForecastModel", "multiplicity": "1", "comment": "The model." },
         { "property": "fb:issued", "label": "issued", "valueType": "dateTime", "comment": "When the projection was made." },
         { "property": "fb:expectedPoints", "label": "expectedPoints", "valueType": "decimal", "comment": "Average final points." },
-        { "property": "fb:positions", "label": "positions", "valueType": "decimal[]", "comment": "Chance of each finishing place, first place first; one per club in the season, adding up to 1." },
+        { "property": "fb:positions", "label": "positions", "valueType": "decimal[]", "comment": "Chance of each finishing place, first place first; one per club in the season, adding up to 1, or to less where the club might not finish the season at all (expelled, withdrawn)." },
         { "property": "fb:scenario", "label": "scenario", "valueType": "string", "optional": true, "comment": "The assumption the projection rests on, if any; absent means as things stand." }
       ],
       "derived": [
         { "property": "fb:championChance", "label": "championChance", "derivation": "positions[0]", "comment": "Chance of finishing first." },
+        { "property": "fb:notFinishing", "label": "notFinishing", "derivation": "1 - sum(positions)", "comment": "Chance the club does not finish the season in the table, e.g. expelled under a scenario." },
         { "property": "fb:zoneChance", "label": "zoneChance", "derivation": "kind => sum(positions[z.from - 1 .. z.to - 1]) for the competition's zones of that kind", "comment": "Chance of finishing in each kind of table zone: Champions League, relegation, ..." }
       ]
     },
@@ -119,7 +120,7 @@
       "rules": [
         { "label": "chances", "errorCode": "bad-chance", "check": "every chance is between 0 and 1", "comment": "homeWin, draw, awayWin, bothTeamsScore, GoalLine.over, ScoreChance.chance and every position." },
         { "label": "outcomesAddUp", "errorCode": "outcomes-dont-add-up", "check": "abs(homeWin + draw + awayWin - 1) <= 0.01", "comment": "Allows for rounding." },
-        { "label": "positionsAddUp", "errorCode": "positions-dont-add-up", "check": "positions.length == season.clubs.length && abs(sum(positions) - 1) <= 0.01", "comment": "One chance per place, adding up to 1." },
+        { "label": "positionsAddUp", "errorCode": "positions-dont-add-up", "check": "positions.length == season.clubs.length && sum(positions) <= 1.01", "comment": "One chance per place, adding up to at most 1 (allowing for rounding); anything short of 1 is the chance of not finishing." },
         { "label": "beforeKickoff", "errorCode": "issued-after-kickoff", "check": "issued < fixture.kickoff", "comment": "A forecast made after kick-off is not a forecast." }
       ]
     }

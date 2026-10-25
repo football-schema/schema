@@ -9,7 +9,7 @@
 
 import { readFile, readdir } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
-import { loadSchema, loadGraph, loadLinked, score, halfTimeScore, result, standing, forecastScore, zoneChance } from './model.js';
+import { loadSchema, loadGraph, loadLinked, score, halfTimeScore, result, standing, forecastScore, zoneChance, notFinishing } from './model.js';
 import { validate } from './validate.js';
 
 const root = new URL('..', import.meta.url);
@@ -72,6 +72,7 @@ ok(forecastScore(fc, { ...fg.byId.get(fc.fixture), status: 'scheduled' }) === nu
 const zones = { zones: [{ from: 1, to: 4, kind: 'championsLeague' }, { from: 18, to: 20, kind: 'relegation' }] };
 const proj = { positions: Array.from({ length: 20 }, (_, i) => (i < 4 ? 0.1 : i >= 17 ? 0.2 : 0)) };
 ok(Math.abs(zoneChance(proj, zones, 'championsLeague') - 0.4) < 1e-9 && Math.abs(zoneChance(proj, zones, 'relegation') - 0.6) < 1e-9, 'zone chances add up the places in each zone');
+ok(Math.abs(notFinishing({ positions: [0.5, 0.45] }) - 0.05) < 1e-9 && notFinishing(proj) === 0, 'what the positions leave short of 1 is the chance of not finishing');
 const late = { ...fg, nodes: fg.nodes.map((n) => (n === fc ? { ...n, issued: '2012-05-13T15:00:00Z', homeWin: 0.9 } : n)) };
 const lateProblems = validate(S, late);
 ok(lateProblems.some((p) => p.includes('issued-after-kickoff')) && lateProblems.some((p) => p.includes('outcomes-dont-add-up')), 'a late forecast, and chances that do not add up, are caught');
