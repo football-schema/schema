@@ -14,7 +14,7 @@ implemented once in [`tools/model.js`](tools/model.js).
 
 | module | layer | contents |
 |---|---|---|
-| [`core`](schema/core.jsonld) | domain | Competition (with TableZones), Season (with PointsDeductions), Club, Registration, Stadium, Person → Player / Manager / Referee; Annotations allowed on any node (`sameAs`, `source`, `retrieved`) |
+| [`core`](schema/core.jsonld) | domain | Competition (with TableZones), Season (with PointsDeductions), Club, Registration, PlayerTotals, Stadium, Person → Player / Manager / Referee; Annotations allowed on any node (`sameAs`, `source`, `retrieved`) |
 | [`match`](schema/match.jsonld) | event | Match, Score, Lineup, Appearance, MatchEvent → Goal / Card / Substitution; status, period, goal and card enums |
 | [`table`](schema/table.jsonld) | projection | Standing: every column derived from finished matches |
 | [`premier-league`](schema/premier-league.jsonld) | competition | Premier League rules: tie-break order, match, squad and season rules |
@@ -320,6 +320,10 @@ change is listed below. IRIs (`urn:football:…`) never change meaning.
 
 ### Changes
 
+- **0.0.4.** Players from sources that list squads and season totals but not every goal: `PlayerTotals`
+  (a player's league goals, matches, assists and penalties for one club in one season, as of a date).
+  `Player.position`, `Player.preferredFoot`, `Registration.shirtNumber` and `Registration.homegrown` are
+  optional, since few sources have them. `loadLinked` also follows `squad` and `player`.
 - **0.0.3.** The `forecast` module: `ForecastModel`, `Rating`, `MatchForecast` (`GoalLine`, `ScoreChance`),
   `SeasonProjection` and `ForecastRules` (chances 0 to 1 that add up, issued before kick-off); `forecastScore()`,
   `zoneChance()` and `notFinishing()` (a projection's places may add up to less than 1, e.g. under an expulsion scenario). `Season.coverage` (`complete` or `partial`; a partial season is exempt from the round-robin

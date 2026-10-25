@@ -5,7 +5,7 @@
       "@id": "fb:catalogue",
       "@type": "Module",
       "label": "catalogue",
-      "version": "0.0.3",
+      "version": "0.0.4",
       "comment": "How published data is found. A Dataset is the one document a consumer needs to know about: it says who publishes the data, on what terms, and links to every season (from which every match and club can be reached by following links) and to any other documents it includes, such as forecasts.",
       "layer": "catalogue"
     },

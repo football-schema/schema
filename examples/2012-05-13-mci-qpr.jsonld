@@ -4,7 +4,8 @@
     { "@id": "#etihad", "@type": "Stadium", "name": "Etihad Stadium", "city": "Manchester", "latitude": 53.4831, "longitude": -2.2004 },
     { "@id": "#loftus-road", "@type": "Stadium", "name": "Loftus Road", "city": "London" },
 
-    { "@id": "#MCI", "@type": "Club", "name": "Manchester City Football Club", "shortName": "Man City", "tla": "MCI", "founded": "1880", "homeGround": "#etihad" },
+    { "@id": "#MCI", "@type": "Club", "name": "Manchester City Football Club", "shortName": "Man City", "tla": "MCI", "founded": "1880", "homeGround": "#etihad",
+      "squad": ["2011-12-scorers.jsonld#MCI-aguero", "2011-12-scorers.jsonld#MCI-balotelli"] },
     { "@id": "#QPR", "@type": "Club", "name": "Queens Park Rangers Football Club", "shortName": "QPR", "tla": "QPR", "founded": "1882", "homeGround": "#loftus-road" },
 
     { "@id": "#zabaleta", "@type": "Player", "name": "Pablo Zabaleta", "nationality": "AR", "position": "DF" },

@@ -87,6 +87,7 @@ const POS = {
   'fb:Season':       { x: COL[1], y: 420 },
   'fb:Standing':     { x: COL[2], y: 420 },
   'fb:Person':       { x: COL[3], y: 420 },
+  'fb:PlayerTotals': { x: COL[4], y: 40 },
   'fb:Registration': { x: COL[0], y: 710 },
   'fb:Match':        { x: COL[1], y: 710 },
   'fb:Player':       { x: COL[2], y: 710 },
@@ -266,7 +267,7 @@ function svg() {
     else out.push(label(cx - 8, Math.round((midY + cy) / 2) + 4, e.label, 'end'));
   }
 
-  const H = Math.max(...[...box.values()].map((b) => b.y + b.h)) + 70;
+  const H = Math.max(...[...box.values()].map((b) => b.y + b.h)) + 90;
   const legend = [
     ['◆', C.fg, 'composition'], ['△', C.edge, 'generalization'], ['→', C.edge, 'association'],
     ['⇢', C.derived, '/derived (computed, not stored)'],
@@ -274,8 +275,8 @@ function svg() {
   ];
   let lx = 20;
   const legendSvg = legend.map(([sym, col, txt]) => {
-    const s = `<text x="${lx}" y="${H - 20}" font-family="${MONO}" font-size="12" fill="${col}">${esc(sym)}</text>`
-      + `<text x="${lx + sym.length * 7.4 + 6}" y="${H - 20}" font-family="${MONO}" font-size="12" fill="${C.muted}">${esc(txt)}</text>`;
+    const s = `<text x="${lx}" y="${H - 40}" font-family="${MONO}" font-size="12" fill="${col}">${esc(sym)}</text>`
+      + `<text x="${lx + sym.length * 7.4 + 6}" y="${H - 40}" font-family="${MONO}" font-size="12" fill="${C.muted}">${esc(txt)}</text>`;
     lx += (sym.length + txt.length) * 7.4 + 34;
     return s;
   });
@@ -285,7 +286,7 @@ function svg() {
   ${out.join('\n  ')}
   ${boxes.join('\n  ')}
   ${legendSvg.join('\n  ')}
-  <text x="${WIDTH - 16}" y="${H - 20}" text-anchor="end" font-family="${MONO}" font-size="12" fill="${C.muted}">generated from schema/{${MODULES.join(',')}}.jsonld</text>
+  <text x="20" y="${H - 16}" font-family="${MONO}" font-size="12" fill="${C.muted}">generated from schema/{${MODULES.join(',')}}.jsonld</text>
 </svg>`;
 }
 

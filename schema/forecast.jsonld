@@ -5,7 +5,7 @@
       "@id": "fb:forecast",
       "@type": "Module",
       "label": "forecast",
-      "version": "0.0.3",
+      "version": "0.0.4",
       "comment": "Ratings and predictions, kept apart from what happened. A forecast is published before the event by a named model and points at the match, club or season it is about, which may live in another dataset; once the match is played anyone can score it (/logLoss, /rps). Chances are probabilities from 0 to 1.",
       "layer": "forecast"
     },

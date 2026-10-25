@@ -1,0 +1,13 @@
+{
+  "@context": "../context.jsonld",
+  "comment": "Players for a season that has season totals but not every goal: Manchester City's two leading league scorers in 2011/12, registered in its squad, with their PlayerTotals. Clubs and players are the ones in 2012-05-13-mci-qpr.jsonld, linked rather than copied.",
+  "@graph": [
+    {"@id": "#season", "@type": "Season", "label": "2011/12", "startDate": "2011-08-13", "endDate": "2012-05-13", "coverage": "partial",
+      "comment": "Only the final day's decider is recorded here.",
+      "clubs": ["2012-05-13-mci-qpr.jsonld#MCI", "2012-05-13-mci-qpr.jsonld#QPR"], "matches": ["2012-05-13-mci-qpr.jsonld#match"]},
+    {"@id": "#MCI-aguero", "@type": "Registration", "player": "2012-05-13-mci-qpr.jsonld#aguero", "season": "#season"},
+    {"@id": "#MCI-balotelli", "@type": "Registration", "player": "2012-05-13-mci-qpr.jsonld#balotelli", "season": "#season"},
+    {"@id": "#totals-aguero", "@type": "PlayerTotals", "player": "2012-05-13-mci-qpr.jsonld#aguero", "club": "2012-05-13-mci-qpr.jsonld#MCI", "season": "#season", "asOf": "2012-05-13", "goals": 23, "played": 34},
+    {"@id": "#totals-balotelli", "@type": "PlayerTotals", "player": "2012-05-13-mci-qpr.jsonld#balotelli", "club": "2012-05-13-mci-qpr.jsonld#MCI", "season": "#season", "asOf": "2012-05-13", "goals": 13, "played": 23}
+  ]
+}

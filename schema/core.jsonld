@@ -5,7 +5,7 @@
       "@id": "fb:core",
       "@type": "Module",
       "label": "core",
-      "version": "0.0.3",
+      "version": "0.0.4",
       "comment": "The long-lived entities of football: competitions, seasons, clubs, grounds and people. A Competition is composed of Seasons; Clubs, Stadiums and People exist independently and are referenced, never owned.",
       "layer": "domain"
     },
@@ -114,8 +114,26 @@
       "fields": [
         { "property": "fb:player", "label": "player", "refType": "fb:Player", "multiplicity": "1", "comment": "The registered player." },
         { "property": "fb:season", "label": "season", "refType": "fb:Season", "multiplicity": "1", "comment": "The season the registration applies to." },
-        { "property": "fb:shirtNumber", "label": "shirtNumber", "valueType": "int", "comment": "Squad number, 1–99, unique within the club for the season." },
-        { "property": "fb:homegrown", "label": "homegrown", "valueType": "bool", "comment": "Registered with an English or Welsh club for three seasons before age 21." }
+        { "property": "fb:shirtNumber", "label": "shirtNumber", "valueType": "int", "optional": true, "comment": "Squad number, 1–99, unique within the club for the season." },
+        { "property": "fb:homegrown", "label": "homegrown", "valueType": "bool", "optional": true, "comment": "Registered with an English or Welsh club for three seasons before age 21." }
+      ]
+    },
+
+    {
+      "@id": "fb:PlayerTotals",
+      "@type": "EntityClass",
+      "module": "fb:core",
+      "label": "PlayerTotals",
+      "comment": "A player's league totals for one club in one season, as a source reports them, for data that has season totals but not each goal. Where a match's Goal events are published, totals can be counted from them instead.",
+      "fields": [
+        { "property": "fb:player", "label": "player", "refType": "fb:Player", "multiplicity": "1", "comment": "The player." },
+        { "property": "fb:club", "label": "club", "refType": "fb:Club", "multiplicity": "1", "comment": "The club the totals are for; a player who moves mid-season has one per club." },
+        { "property": "fb:season", "label": "season", "refType": "fb:Season", "multiplicity": "1", "comment": "The season." },
+        { "property": "fb:asOf", "label": "asOf", "valueType": "date", "comment": "Date the totals were taken." },
+        { "property": "fb:goals", "label": "goals", "valueType": "int", "comment": "League goals, penalties included." },
+        { "property": "fb:played", "label": "played", "valueType": "int", "optional": true, "comment": "League matches played in." },
+        { "property": "fb:assists", "label": "assists", "valueType": "int", "optional": true, "comment": "Assists, if the source counts them; absent means not known, not none." },
+        { "property": "fb:penalties", "label": "penalties", "valueType": "int", "optional": true, "comment": "Goals from penalties, if known." }
       ]
     },
 
@@ -159,8 +177,8 @@
       "label": "Player",
       "comment": "A registered player.",
       "fields": [
-        { "property": "fb:position", "label": "position", "enumType": "fb:Position", "comment": "Primary playing position." },
-        { "property": "fb:preferredFoot", "label": "preferredFoot", "enumType": "fb:Foot", "comment": "Stronger foot." }
+        { "property": "fb:position", "label": "position", "enumType": "fb:Position", "optional": true, "comment": "Primary playing position." },
+        { "property": "fb:preferredFoot", "label": "preferredFoot", "enumType": "fb:Foot", "optional": true, "comment": "Stronger foot." }
       ]
     },
 

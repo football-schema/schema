@@ -97,7 +97,7 @@ export async function loadDir(dir) {
 // consumer needs one address: a Dataset, or a Season. Each document is read
 // once; IRIs are followed to the document, not the fragment.
 //   const g = await loadLinked('https://example.org/data/dataset.jsonld');
-export const FOLLOW = ['seasons', 'competitions', 'includes', 'matches', 'clubs', 'promoted', 'deductions', 'homeGround', 'venue', 'referee', 'fixture', 'club', 'season'];
+export const FOLLOW = ['seasons', 'competitions', 'includes', 'matches', 'clubs', 'promoted', 'deductions', 'homeGround', 'venue', 'referee', 'fixture', 'club', 'season', 'squad', 'player'];
 export async function loadLinked(start, { follow = FOLLOW, limit = 1000, parallel = 8 } = {}) {
   const graph = { files: [], nodes: [], byId: new Map() };
   const queue = [toUrl(start).href], seen = new Set(queue);

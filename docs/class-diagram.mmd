@@ -41,8 +41,18 @@ classDiagram
   class Registration {
     +Player player
     +Season season
-    +int shirtNumber
-    +bool homegrown
+    +int? shirtNumber
+    +bool? homegrown
+  }
+  class PlayerTotals {
+    +Player player
+    +Club club
+    +Season season
+    +date asOf
+    +int goals
+    +int? played
+    +int? assists
+    +int? penalties
   }
   class Stadium {
     +string name
@@ -60,8 +70,8 @@ classDiagram
     +age() derived
   }
   class Player {
-    +Position position
-    +Foot preferredFoot
+    +Position? position
+    +Foot? preferredFoot
   }
   class Manager {
     +Club? club
