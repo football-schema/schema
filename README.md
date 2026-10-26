@@ -283,6 +283,17 @@ const table = classify(season.clubs.map((c) => standing(c, matches, undefined, {
 `validate` checks every node against its class, that references resolve to the right types, and the
 Premier League's match and season rules (for example a complete double round-robin).
 
+`model.js` also runs in a browser as it is, with no install or build: import it from this site, and
+`loadLinked` fetches the data (a path is relative to the page; data on another host needs CORS headers).
+[matchday's viewer](https://melvin.me/public/matchday/view/) is built this way.
+
+```html
+<script type="module">
+  import { loadLinked, standing, classify } from 'https://football-schema.github.io/schema/tools/model.js';
+  const g = await loadLinked('https://melvin.me/public/matchday/data/seasons/2026-27.jsonld', { follow: ['clubs', 'matches'] });
+</script>
+```
+
 Worked examples: [`2012-05-13-mci-qpr.jsonld`](examples/2012-05-13-mci-qpr.jsonld), Manchester City 3–2
 QPR recorded as events only (`npm run derive` computes its score and table);
 [`2023-24-deductions.jsonld`](examples/2023-24-deductions.jsonld), Everton's and Forest's points deductions
@@ -320,6 +331,7 @@ change is listed below. IRIs (`urn:football:…`) never change meaning.
 
 ### Changes
 
+- **Unreleased.** `model.js` runs in the browser as well as Node (the file system is used only in Node).
 - **0.0.4.** Players from sources that list squads and season totals but not every goal: `PlayerTotals`
   (a player's league goals, matches, assists and penalties for one club in one season, as of a date).
   `Player.position`, `Player.preferredFoot`, `Registration.shirtNumber` and `Registration.homegrown` are

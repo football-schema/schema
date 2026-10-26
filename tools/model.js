@@ -2,19 +2,23 @@
 // scores and tables exactly as schema/*.jsonld describes them. Instance data
 // is plain JSON-LD: nodes in @graph, references as relative IRIs ("#stadium",
 // "../clubs/ARS.jsonld#this") resolved against the file they appear in, read
-// from disk or over HTTP.
+// from disk or over HTTP. Runs in Node and, unbundled, in the browser:
+//   import { loadLinked } from 'https://football-schema.github.io/schema/tools/model.js';
 
-import { readFile, readdir } from 'node:fs/promises';
-import { pathToFileURL } from 'node:url';
-import { resolve } from 'node:path';
+// Node's file system where there is one; in a browser everything is fetched
+const node = typeof process !== 'undefined' && !!process.versions?.node;
+const { readFile, readdir } = node ? await import('node:fs/promises') : {};
+const { pathToFileURL } = node ? await import('node:url') : {};
+const { resolve } = node ? await import('node:path') : {};
 
 const root = new URL('..', import.meta.url);
+const readJson = async (url) => (url.protocol === 'file:' ? JSON.parse(await readFile(url, 'utf8')) : (await fetch(url)).json());
 export const MODULES = ['core', 'match', 'table', 'premier-league', 'catalogue', 'forecast'];
 
 export async function loadSchema() {
   const nodes = [];
   for (const name of MODULES) {
-    const doc = JSON.parse(await readFile(new URL(`schema/${name}.jsonld`, root), 'utf8'));
+    const doc = await readJson(new URL(`schema/${name}.jsonld`, root));
     nodes.push(...doc['@graph'].map((n) => ({ ...n, _module: name })));
   }
   const byId = new Map(nodes.map((n) => [n['@id'], n]));
@@ -40,11 +44,11 @@ export async function loadSchema() {
 }
 
 // terms the context types as @id: their string values are IRIs, not literals
-const context = JSON.parse(await readFile(new URL('context.jsonld', root), 'utf8'))['@context'];
+const context = (await readJson(new URL('context.jsonld', root)))['@context'];
 const ID_TERMS = new Set(Object.entries(context).filter(([, v]) => v?.['@type'] === '@id').map(([k]) => k));
 
-// a path, a file: or http(s): IRI, or a URL -> a URL
-const toUrl = (p) => (p instanceof URL ? p : /^(https?|file):/.test(p) ? new URL(p) : pathToFileURL(resolve(p)));
+// a path, a file: or http(s): IRI, or a URL -> a URL (in a browser, a path is relative to the page)
+const toUrl = (p) => (p instanceof URL ? p : /^(https?|file):/.test(p) ? new URL(p) : node ? pathToFileURL(resolve(p)) : new URL(p, location.href));
 async function readDoc(url) {
   if (url.protocol === 'file:') return JSON.parse(await readFile(url, 'utf8'));
   const res = await fetch(url, { headers: { accept: 'application/ld+json, application/json;q=0.9' }, signal: AbortSignal.timeout(30_000) });
