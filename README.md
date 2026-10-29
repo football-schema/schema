@@ -331,7 +331,7 @@ change is listed below. IRIs (`urn:football:…`) never change meaning.
 
 ### Changes
 
-- **Unreleased.** `model.js` runs in the browser as well as Node (the file system is used only in Node).
+- **Unreleased.** `model.js` runs in the browser as well as Node (the file system is used only in Node). `loadLinked` keeps up to `parallel` documents in flight (a pool, not batches; same order of results) and, given `onError`, skips a document it cannot read and lists it in `errors`.
 - **0.0.4.** Players from sources that list squads and season totals but not every goal: `PlayerTotals`
   (a player's league goals, matches, assists and penalties for one club in one season, as of a date).
   `Player.position`, `Player.preferredFoot`, `Registration.shirtNumber` and `Registration.homegrown` are

@@ -99,29 +99,62 @@ export async function loadDir(dir) {
 
 // Load a document and every document it links to through `follow` terms, so a
 // consumer needs one address: a Dataset, or a Season. Each document is read
-// once; IRIs are followed to the document, not the fragment.
+// once; IRIs are followed to the document, not the fragment. Up to `parallel`
+// documents are in flight at once; the result lists them in breadth-first order
+// from the start, whatever order they arrived in. A document that can't be read
+// fails the load, unless `onError(error, url)` is given: then it is skipped and
+// listed in `errors` (the start document always fails the load).
 //   const g = await loadLinked('https://example.org/data/dataset.jsonld');
 export const FOLLOW = ['seasons', 'competitions', 'includes', 'matches', 'clubs', 'promoted', 'deductions', 'homeGround', 'venue', 'referee', 'fixture', 'club', 'season', 'squad', 'player'];
-export async function loadLinked(start, { follow = FOLLOW, limit = 1000, parallel = 8 } = {}) {
-  const graph = { files: [], nodes: [], byId: new Map() };
-  const queue = [toUrl(start).href], seen = new Set(queue);
-  const links = (n, out) => {
-    for (const [k, v] of Object.entries(n)) for (const x of [].concat(v)) {
-      if (typeof x === 'object' && x !== null) links(x, out);
-      else if (follow.includes(k) && typeof x === 'string') out.push(x.split('#')[0]);
-    }
+export async function loadLinked(start, { follow = FOLLOW, limit = 1000, parallel = 8, onError } = {}) {
+  const first = toUrl(start).href;
+  const docs = new Map(), errors = [];
+  const linksOf = (g) => {
+    const out = [];
+    const walk = (n) => {
+      for (const [k, v] of Object.entries(n)) for (const x of [].concat(v)) {
+        if (typeof x === 'object' && x !== null) walk(x);
+        else if (follow.includes(k) && typeof x === 'string') out.push(x.split('#')[0]);
+      }
+    };
+    g.nodes.forEach(walk);
+    return out.filter(Boolean);
   };
-  // a few documents at a time, in the order they were found
-  while (queue.length) {
-    if (graph.files.length + queue.length > limit) throw new Error(`loadLinked: more than ${limit} documents from ${start}`);
-    for (const g of await Promise.all(queue.splice(0, parallel).map(loadGraph))) {
-      graph.files.push(g);
-      graph.nodes.push(...g.nodes);
-      for (const [id, n] of g.byId) graph.byId.set(id, n);
-      const next = [];
-      g.nodes.forEach((n) => links(n, next));
-      for (const u of next) if (u && !seen.has(u)) { seen.add(u); queue.push(u); }
-    }
+  const seen = new Set([first]), queue = [first];
+  await new Promise((done, fail) => {
+    let active = 0, failed = false;
+    const pump = () => {
+      if (failed) return;
+      if (!queue.length && !active) return done();
+      while (active < parallel && queue.length) {
+        const url = queue.shift();
+        active++;
+        loadGraph(url).then((g) => {
+          docs.set(url, g);
+          for (const u of linksOf(g)) if (!seen.has(u)) {
+            seen.add(u);
+            if (seen.size > limit) throw new Error(`loadLinked: more than ${limit} documents from ${start}`);
+            queue.push(u);
+          }
+        }, (e) => {
+          if (!onError || url === first) throw e;
+          errors.push({ url, error: e });
+          onError(e, url);
+        }).then(() => { active--; pump(); }, (e) => { failed = true; fail(e); });
+      }
+    };
+    pump();
+  });
+  // breadth-first from the start, as the documents link to each other
+  const graph = { files: [], nodes: [], byId: new Map(), errors };
+  const order = [first], placed = new Set(order);
+  for (let i = 0; i < order.length; i++) {
+    const g = docs.get(order[i]);
+    if (!g) continue;
+    graph.files.push(g);
+    graph.nodes.push(...g.nodes);
+    for (const [id, n] of g.byId) graph.byId.set(id, n);
+    for (const u of linksOf(g)) if (!placed.has(u)) { placed.add(u); order.push(u); }
   }
   return graph;
 }
